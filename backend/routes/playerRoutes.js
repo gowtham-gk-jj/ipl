@@ -32,37 +32,37 @@ router.post(
 );
 
 /* ================= BULK 12 PLAYER ADD ================= */
+/* ================= BULK 12 PLAYER ADD ================= */
 router.post(
   "/bulk-form",
   protect,
-  authorize("host", "admin"), // ✅ allow admin
-  upload.fields(
-    Array.from({ length: 12 }, (_, i) => ({
-      name: `players[${i}][image]`,
-      maxCount: 1
-    }))
-  ),
+  authorize("host", "admin"),
+  upload.any(),
   async (req, res) => {
     try {
       const { category, nationality, capStatus } = req.body;
 
       const players = [];
 
+      const fileMap = {};
+      if (req.files) {
+        req.files.forEach((file) => {
+          fileMap[file.fieldname] = file.filename;
+        });
+      }
+
       for (let i = 0; i < 12; i++) {
-        const name = req.body[`players[${i}][name]`];
-        const basePrice = req.body[`players[${i}][basePrice]`];
+        const name = req.body[`name_${i}`];
+        const basePrice = req.body[`price_${i}`];
 
         if (name && basePrice) {
-          const imageFile =
-            req.files?.[`players[${i}][image]`]?.[0]?.filename || null;
-
           players.push({
             name,
             category,
             nationality,
             capStatus,
             basePrice: Number(basePrice),
-            image: imageFile
+            image: fileMap[`image_${i}`] || null
           });
         }
       }
@@ -73,9 +73,12 @@ router.post(
 
       await Player.insertMany(players);
 
-      res.json({ message: "12 Players Added Successfully" });
+      res.json({
+        message: `${players.length} Players Added Successfully`
+      });
+
     } catch (err) {
-      console.error("Bulk error:", err);
+      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }

@@ -11,7 +11,6 @@ export default function AdminPlayers() {
     capStatus: ""
   });
 
-  // 12 players array
   const [bulkPlayers, setBulkPlayers] = useState(
     Array.from({ length: 12 }, () => ({
       name: "",
@@ -35,26 +34,56 @@ export default function AdminPlayers() {
     setBulkPlayers(updated);
   };
 
-  const handleBulkSubmit = async () => {
-    if (!common.category || !common.nationality || !common.capStatus) {
-      return alert("Please select Category, Nationality and Cap Status");
-    }
-
-    const formData = new FormData();
-    formData.append("category", common.category);
-    formData.append("nationality", common.nationality);
-    formData.append("capStatus", common.capStatus);
-
-    bulkPlayers.forEach((player, index) => {
-      formData.append(`players[${index}][name]`, player.name);
-      formData.append(`players[${index}][basePrice]`, player.basePrice);
-      formData.append(`players[${index}][image]`, player.image);
-    });
-
-    await createBulkPlayers(formData);
-    alert("12 Players Added Successfully!");
-    load();
+  const resetForm = () => {
+    setBulkPlayers(
+      Array.from({ length: 12 }, () => ({
+        name: "",
+        basePrice: "",
+        image: null
+      }))
+    );
   };
+
+  const handleBulkSubmit = async () => {
+  if (!common.category || !common.nationality || !common.capStatus) {
+    return alert("Please select Category, Nationality and Cap Status");
+  }
+
+  const formData = new FormData();
+  formData.append("category", common.category);
+  formData.append("nationality", common.nationality);
+  formData.append("capStatus", common.capStatus);
+
+  let validCount = 0;
+
+  bulkPlayers.forEach((player, index) => {
+    if (player.name.trim() !== "" && player.basePrice !== "") {
+      formData.append(`name_${index}`, player.name);
+      formData.append(`price_${index}`, player.basePrice);
+
+      if (player.image) {
+        formData.append(`image_${index}`, player.image);
+      }
+
+      validCount++;
+    }
+  });
+
+  if (validCount === 0) {
+    return alert("Please fill at least one player row");
+  }
+
+  try {
+    await createBulkPlayers(formData);
+    alert(`${validCount} Players Added Successfully!`);
+    resetForm();
+    load();
+  } catch (err) {
+    console.error(err);
+    alert("Error adding players");
+  }
+};
+
 
   return (
     <AdminLayout>
@@ -141,7 +170,7 @@ export default function AdminPlayers() {
           onClick={handleBulkSubmit}
           className="bg-[#D4AF37] text-black px-6 py-2 rounded mt-4"
         >
-          Add 12 Players
+          Add Players
         </button>
       </div>
     </AdminLayout>
