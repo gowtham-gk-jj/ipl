@@ -10,6 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const teamRoutes = require("./routes/teamRoutes");
 const playerRoutes = require("./routes/playerRoutes");
 const auctionRoutes = require("./routes/auctionRoutes");
+const dashbordRoutes = require("./routes/dashboardRoutes");
 
 const initSocket = require("./socket");
 
@@ -42,6 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
+app.use("./api/dashboaed",dashbordRoutes);
 
 /* ================= SOCKET ================= */
 const server = http.createServer(app);
