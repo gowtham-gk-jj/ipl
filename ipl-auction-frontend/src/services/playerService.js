@@ -15,5 +15,6 @@ export const updatePlayer = (id, data) =>
 // Delete player
 export const deletePlayer = (id) =>
   api(`/api/players/${id}`, "DELETE");
+
 export const createBulkPlayers = (data) =>
-  api("/api/players/bulk", "POST", data, true);
+  api("/api/players/bulk-form", "POST", data, true);

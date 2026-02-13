@@ -3,11 +3,10 @@ const Player = require("../models/Player");
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
 const upload = require("../middleware/upload");
-const csv = require("csv-parser");
-const fs = require("fs");
+
 const router = express.Router();
 
-/* ADD PLAYER */
+/* ================= SINGLE ADD PLAYER ================= */
 router.post(
   "/",
   protect,
@@ -31,13 +30,58 @@ router.post(
   }
 );
 
-/* GET PLAYERS */
+/* ================= BULK 12 PLAYER ADD ================= */
+router.post(
+  "/bulk-form",
+  protect,
+  authorize("host"),
+  upload.any(), // important
+  async (req, res) => {
+    try {
+      const { category, nationality, capStatus } = req.body;
+
+      const players = [];
+
+      // Multer stores files in req.files
+      const fileMap = {};
+      req.files.forEach((file) => {
+        fileMap[file.fieldname] = file.filename;
+      });
+
+      // Loop through 12 players
+      for (let i = 0; i < 12; i++) {
+        const name = req.body[`players[${i}][name]`];
+        const basePrice = req.body[`players[${i}][basePrice]`];
+        const imageField = `players[${i}][image]`;
+
+        if (name && basePrice) {
+          players.push({
+            name,
+            category,
+            nationality,
+            capStatus,
+            basePrice: Number(basePrice),
+            image: fileMap[imageField] || null
+          });
+        }
+      }
+
+      await Player.insertMany(players);
+
+      res.json({ message: "12 Players Added Successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+/* ================= GET PLAYERS ================= */
 router.get("/", async (req, res) => {
   const players = await Player.find().populate("soldTo");
   res.json(players);
 });
 
-/* UPDATE PLAYER */
+/* ================= UPDATE PLAYER ================= */
 router.put(
   "/:id",
   protect,
@@ -70,7 +114,7 @@ router.put(
   }
 );
 
-/* DELETE PLAYER */
+/* ================= DELETE PLAYER ================= */
 router.delete(
   "/:id",
   protect,
@@ -81,41 +125,6 @@ router.delete(
       res.json({ message: "Player deleted" });
     } catch (err) {
       res.status(500).json({ message: err.message });
-    }
-  }
-);
-/* BULK UPLOAD PLAYERS (CSV) */
-router.post(
-  "/bulk",
-  protect,
-  authorize("host"),
-  upload.single("file"),
-  async (req, res) => {
-    try {
-      const players = [];
-
-      fs.createReadStream(req.file.path)
-        .pipe(csv())
-        .on("data", (row) => {
-          players.push({
-            name: row.name,
-            category: row.category,
-            nationality: row.nationality,
-            capStatus: row.capStatus,
-            basePrice: Number(row.basePrice),
-            matches: Number(row.matches || 0),
-            runs: Number(row.runs || 0),
-            image: row.image || null
-          });
-        })
-        .on("end", async () => {
-          await Player.insertMany(players);
-          fs.unlinkSync(req.file.path);
-          res.json({ message: "12 Players Uploaded Successfully" });
-        });
-
-    } catch (error) {
-      res.status(500).json({ message: error.message });
     }
   }
 );
