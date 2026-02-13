@@ -1,24 +1,37 @@
-const express = require("express");
-const Team = require("../models/Team");
-const protect = require("../middleware/authMiddleware");
-const authorize = require("../middleware/roleMiddleware");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
-const router = express.Router();
-
-/* CREATE TEAM */
 router.post(
   "/",
   protect,
-  authorize("admin", "host", "superadmin"), // 👈 Added "admin"
+  authorize("admin", "superadmin"),
   async (req, res) => {
     try {
-      const { name, budget } = req.body;
+      const { name, budget, email, password } = req.body;
 
+      // Check if email already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create team user login
+      const teamUser = await User.create({
+        email,
+        password: hashedPassword,
+        role: "team"
+      });
+
+      // Create team
       const team = await Team.create({
         name,
         budget,
         remainingPurse: budget,
-        playerCount: 0
+        playerCount: 0,
+        owner: teamUser._id
       });
 
       res.status(201).json(team);
@@ -27,15 +40,3 @@ router.post(
     }
   }
 );
-
-/* GET ALL TEAMS */
-router.get("/", protect, async (req, res) => {
-  try {
-    const teams = await Team.find();
-    res.json(teams);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-module.exports = router;
