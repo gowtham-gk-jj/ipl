@@ -1,54 +1,85 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useContext } from "react";
+import { loginUser } from "../services/authService";
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const data = await loginUser(email, password);
 
-      const { role, teamName } = res.data;
+      // Support multiple backend response formats
+      const userData = data.user ? data.user : data;
+      const token = data.token;
 
-      // Save login info
-      localStorage.setItem("role", role);
-      localStorage.setItem("teamName", teamName);
-
-      // 🔥 Redirect based on role
-      if (role === "host") {
-        navigate("/host/add-team");
-      } else {
-        navigate("/team/dashboard");
+      if (!token || !userData) {
+        alert("Invalid login response from server");
+        return;
       }
-    } catch (error) {
-      alert("Invalid Login");
+
+      // Save token & user
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      login({ token, user: userData });
+
+      // ROLE BASED REDIRECT
+      if (userData.role === "admin") {
+        navigate("/admin");
+      } else if (userData.role === "host") {
+        navigate("/host");
+      } else if (userData.role === "team") {
+        navigate("/team");
+      } else {
+        navigate("/");
+      }
+
+    } catch (err) {
+      alert(err.message || "Login failed");
     }
   };
 
   return (
-    <div className="container">
-      <h1>IPL Auction Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#141A2E] p-8 rounded shadow-lg w-96 text-white"
+      >
+        <h2 className="text-2xl text-[#D4AF37] mb-6 text-center">
+          IPL Auction Login
+        </h2>
 
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <input
+          placeholder="Email"
+          className="border border-[#D4AF37] bg-[#0B0F1A] p-2 w-full mb-4"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          className="border border-[#D4AF37] bg-[#0B0F1A] p-2 w-full mb-6"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-      <button onClick={handleLogin}>Login</button>
+        <button
+          type="submit"
+          className="bg-[#D4AF37] text-black w-full py-2 rounded hover:opacity-90"
+        >
+          Login
+        </button>
+      </form>
     </div>
   );
 }
-
-export default Login;

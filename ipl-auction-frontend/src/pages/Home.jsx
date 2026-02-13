@@ -1,17 +1,22 @@
-import PlayerCard from "../components/PlayerCard";
-import batsmanData from "../data/batsmanData";
+import { useEffect, useState } from "react";
+import { getPlayers } from "../services/api";
+import PlayerCard from "../components/players/PlayerCard";
 
-function Home() {
+export default function Home() {
+  const [players, setPlayers] = useState([]);
+
+  useEffect(() => {
+    getPlayers().then(setPlayers);
+  }, []);
+
   return (
     <div className="container">
-      <h1>Batsman Category</h1>
+      <h1>Available Players</h1>
       <div className="grid">
-        {batsmanData.map((player) => (
-          <PlayerCard key={player.id} player={player} />
+        {players.map((p) => (
+          <PlayerCard key={p._id} player={p} />
         ))}
       </div>
     </div>
   );
 }
-
-export default Home;

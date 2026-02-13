@@ -1,27 +1,35 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AuthProvider from "./context/AuthContext";
 import Login from "./pages/Login";
-import HostAddTeam from "./pages/HostAddTeam";
-import TeamDashboard from "./pages/TeamDashboard";
-import AdminAuction from "./pages/AdminAuction";
+import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
+import TeamsPage from "./pages/TeamsPage";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Default Page */}
-        <Route path="/" element={<Login />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
 
-        {/* Host Page */}
-        <Route path="/host/add-team" element={<HostAddTeam />} />
+          {/* Default Route */}
+          <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* Team Dashboard */}
-        <Route path="/team/dashboard" element={<TeamDashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Auction Page (optional) */}
-        <Route path="/auction" element={<AdminAuction />} />
-      </Routes>
-    </Router>
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <TeamsPage />
+              </ProtectedRoute>
+            }
+          />
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App;
