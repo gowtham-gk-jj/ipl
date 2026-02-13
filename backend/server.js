@@ -13,22 +13,51 @@ const auctionRoutes = require("./routes/auctionRoutes");
 
 const initSocket = require("./socket");
 
+/* ================= DB CONNECT ================= */
 connectDB();
 
+/* ================= APP INIT ================= */
 const app = express();
-app.use(cors());
+
+/* ================= CORS ================= */
+app.use(
+  cors({
+    origin: "*", // Later restrict to frontend domain
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
 app.use(express.json());
 
+/* ================= ROOT ROUTE (Fix Cannot GET /) ================= */
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "IPL Auction Backend Running 🚀",
+  });
+});
+
+/* ================= ROUTES ================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
 
+/* ================= SOCKET ================= */
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
 initSocket(io);
 
-server.listen(process.env.PORT || 5000, () =>
-  console.log("Server running")
-);
+/* ================= SERVER START ================= */
+const PORT = process.env.PORT || 5000;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
