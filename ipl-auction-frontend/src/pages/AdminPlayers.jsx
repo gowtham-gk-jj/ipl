@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/layout/AdminLayout";
-import { getPlayers, createPlayer, updatePlayer, deletePlayer } from "../services/playerService";
+import {
+  getPlayers,
+  createPlayer,
+  updatePlayer,
+  deletePlayer,
+  createBulkPlayers
+} from "../services/playerService";
 
 export default function AdminPlayers() {
   const [players, setPlayers] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [bulkFile, setBulkFile] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -24,6 +31,7 @@ export default function AdminPlayers() {
     load();
   }, []);
 
+  // ✅ SINGLE PLAYER SUBMIT
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("name", form.name);
@@ -39,6 +47,11 @@ export default function AdminPlayers() {
       await createPlayer(formData);
     }
 
+    resetForm();
+    load();
+  };
+
+  const resetForm = () => {
     setForm({
       name: "",
       category: "",
@@ -47,8 +60,19 @@ export default function AdminPlayers() {
       basePrice: "",
       image: null
     });
-
     setEditId(null);
+  };
+
+  // ✅ BULK UPLOAD FUNCTION
+  const handleBulkUpload = async () => {
+    if (!bulkFile) return alert("Please select CSV file");
+
+    const formData = new FormData();
+    formData.append("file", bulkFile);
+
+    await createBulkPlayers(formData);
+    alert("12 Players Uploaded Successfully!");
+    setBulkFile(null);
     load();
   };
 
@@ -56,10 +80,9 @@ export default function AdminPlayers() {
     <AdminLayout>
       <h1 className="text-3xl text-[#D4AF37] mb-6">Players</h1>
 
-      {/* FORM */}
+      {/* ================= SINGLE PLAYER FORM ================= */}
       <div className="bg-[#141A2E] p-6 rounded mb-6 grid md:grid-cols-3 gap-4">
 
-        {/* Name */}
         <input
           placeholder="Name"
           value={form.name}
@@ -67,7 +90,6 @@ export default function AdminPlayers() {
           className="bg-[#0B0F1A] border border-[#D4AF37] p-2"
         />
 
-        {/* Category */}
         <select
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -80,7 +102,6 @@ export default function AdminPlayers() {
           <option>Wicket Keeper</option>
         </select>
 
-        {/* Nationality */}
         <select
           value={form.nationality}
           onChange={(e) => setForm({ ...form, nationality: e.target.value })}
@@ -91,7 +112,6 @@ export default function AdminPlayers() {
           <option value="Foreign">Foreign</option>
         </select>
 
-        {/* Cap Status */}
         <select
           value={form.capStatus}
           onChange={(e) => setForm({ ...form, capStatus: e.target.value })}
@@ -102,7 +122,6 @@ export default function AdminPlayers() {
           <option value="Uncapped">Uncapped</option>
         </select>
 
-        {/* Base Price */}
         <input
           type="number"
           placeholder="Base Price (Lakhs)"
@@ -111,7 +130,6 @@ export default function AdminPlayers() {
           className="bg-[#0B0F1A] border border-[#D4AF37] p-2"
         />
 
-        {/* Image Upload */}
         <input
           type="file"
           accept="image/*"
@@ -119,7 +137,6 @@ export default function AdminPlayers() {
           className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
 
-        {/* Button */}
         <button
           onClick={handleSubmit}
           className="bg-[#D4AF37] text-black p-2 rounded col-span-3"
@@ -128,7 +145,28 @@ export default function AdminPlayers() {
         </button>
       </div>
 
-      {/* PLAYER LIST */}
+      {/* ================= BULK UPLOAD SECTION ================= */}
+      <div className="bg-[#141A2E] p-6 rounded mb-6">
+        <h2 className="text-xl text-[#D4AF37] mb-4">
+          Bulk Upload (Upload 12 Players via CSV)
+        </h2>
+
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => setBulkFile(e.target.files[0])}
+          className="text-white mb-4"
+        />
+
+        <button
+          onClick={handleBulkUpload}
+          className="bg-green-600 px-4 py-2 rounded"
+        >
+          Upload CSV
+        </button>
+      </div>
+
+      {/* ================= PLAYER LIST ================= */}
       {players.map((p) => (
         <div
           key={p._id}
@@ -138,7 +176,7 @@ export default function AdminPlayers() {
 
             {p.image && (
               <img
-                src={`http://localhost:5000/uploads/${p.image}`}
+                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${p.image}`}
                 alt={p.name}
                 className="w-16 h-16 object-cover rounded"
               />

@@ -3,7 +3,8 @@ const Player = require("../models/Player");
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
 const upload = require("../middleware/upload");
-
+const csv = require("csv-parser");
+const fs = require("fs");
 const router = express.Router();
 
 /* ADD PLAYER */
@@ -80,6 +81,41 @@ router.delete(
       res.json({ message: "Player deleted" });
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  }
+);
+/* BULK UPLOAD PLAYERS (CSV) */
+router.post(
+  "/bulk",
+  protect,
+  authorize("host"),
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const players = [];
+
+      fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on("data", (row) => {
+          players.push({
+            name: row.name,
+            category: row.category,
+            nationality: row.nationality,
+            capStatus: row.capStatus,
+            basePrice: Number(row.basePrice),
+            matches: Number(row.matches || 0),
+            runs: Number(row.runs || 0),
+            image: row.image || null
+          });
+        })
+        .on("end", async () => {
+          await Player.insertMany(players);
+          fs.unlinkSync(req.file.path);
+          res.json({ message: "12 Players Uploaded Successfully" });
+        });
+
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
   }
 );
