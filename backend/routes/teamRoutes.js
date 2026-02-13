@@ -14,17 +14,20 @@ router.post(
   authorize("admin", "superadmin"),
   async (req, res) => {
     try {
-      const { name, budget, email, password } = req.body;
+      const { teamName, totalBudget, email, password } = req.body;
 
-      if (!name || !budget || !email || !password) {
+      // Validate
+      if (!teamName || !totalBudget || !email || !password) {
         return res.status(400).json({ message: "All fields required" });
       }
 
+      // Check existing email
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ message: "Email already exists" });
       }
 
+      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create team login user
@@ -36,13 +39,12 @@ router.post(
 
       // Create team
       const team = await Team.create({
-        teamName: name,              // ✅ match model
-        totalBudget: budget,         // ✅ match model
-        remainingPurse: budget,
+        teamName,
+        totalBudget,
+        remainingPurse: totalBudget,
         playerCount: 0,
         owner: teamUser._id
       });
-
 
       res.status(201).json(team);
 
@@ -51,6 +53,7 @@ router.post(
     }
   }
 );
+
 
 /* ================= GET ALL TEAMS ================= */
 router.get("/", protect, async (req, res) => {
