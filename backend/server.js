@@ -10,6 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const teamRoutes = require("./routes/teamRoutes");
 const playerRoutes = require("./routes/playerRoutes");
 const auctionRoutes = require("./routes/auctionRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const initSocket = require("./socket");
 
@@ -22,14 +23,14 @@ const app = express();
 /* ================= CORS ================= */
 app.use(
   cors({
-    origin: "*", // Later restrict to frontend domain
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
 app.use(express.json());
 
-/* ================= ROOT ROUTE (Fix Cannot GET /) ================= */
+/* ================= ROOT ROUTE ================= */
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",
@@ -42,6 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 /* ================= SOCKET ================= */
 const server = http.createServer(app);

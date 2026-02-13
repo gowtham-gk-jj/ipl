@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
-import { getPlayers, createPlayer, updatePlayer, deletePlayer } from "../../services/playerService";
+import AdminLayout from "../components/layout/AdminLayout";
+import { getPlayers, createPlayer, updatePlayer, deletePlayer } from "../services/playerService";
+
 
 export default function AdminPlayers() {
   const [players, setPlayers] = useState([]);

@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ResetPassword from "./pages/ResetPassword";
-import TeamsPage from "./pages/TeamsPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPlayers from "./pages/AdminPlayers";
+import AdminTeams from "./pages/AdminTeams";
+import AdminReports from "./pages/AdminReports";
 
 export default function App() {
   return (
@@ -12,18 +14,44 @@ export default function App() {
       <BrowserRouter>
         <Routes>
 
-          {/* Default Route */}
+          {/* Default route */}
           <Route path="/" element={<Navigate to="/login" />} />
 
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
 
+          {/* ADMIN ROUTES */}
           <Route
-            path="/teams"
+            path="/admin"
             element={
               <ProtectedRoute roles={["admin"]}>
-                <TeamsPage />
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/players"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminPlayers />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/teams"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminTeams />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminReports />
               </ProtectedRoute>
             }
           />

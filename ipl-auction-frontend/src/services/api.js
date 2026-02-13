@@ -12,10 +12,19 @@ async function api(endpoint, method = "GET", body = null) {
     body: body ? JSON.stringify(body) : null
   });
 
-  const data = await res.json();
+  // 👇 SAFELY HANDLE NON-JSON RESPONSES
+  const contentType = res.headers.get("content-type");
+
+  let data = null;
+
+  if (contentType && contentType.includes("application/json")) {
+    data = await res.json();
+  } else {
+    data = null;
+  }
 
   if (!res.ok) {
-    throw new Error(data.message || "API Error");
+    throw new Error(data?.message || `API Error (${res.status})`);
   }
 
   return data;

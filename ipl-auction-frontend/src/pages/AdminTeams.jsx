@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
-import { getTeams, createTeam, updateTeam, deleteTeam } from "../../services/teamService";
+import AdminLayout from "../components/layout/AdminLayout";
+import { getTeams, createTeam, updateTeam, deleteTeam } from "../services/teamService";
+
 
 export default function AdminTeams() {
   const [teams, setTeams] = useState([]);

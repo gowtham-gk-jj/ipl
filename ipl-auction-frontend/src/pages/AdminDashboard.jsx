@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
-import api from "../../services/api";
+import AdminLayout from "../components/layout/AdminLayout";
+import api from "../services/api";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -9,8 +9,18 @@ export default function AdminDashboard() {
     totalRevenue: 0
   });
 
+  const loadStats = async () => {
+    try {
+      const data = await api("/api/dashboard/admin");
+      setStats(data);
+    } catch (err) {
+      console.error("Dashboard API error:", err.message);
+      // Keep default 0 values if API fails
+    }
+  };
+
   useEffect(() => {
-    api("/api/dashboard/admin").then(setStats);
+    loadStats();
   }, []);
 
   return (

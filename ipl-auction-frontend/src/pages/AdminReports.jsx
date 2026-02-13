@@ -1,5 +1,5 @@
-import AdminLayout from "../../layouts/AdminLayout";
-import api from "../../services/api";
+import AdminLayout from "../components/layout/AdminLayout";
+import api from "../services/api";
 
 export default function AdminReports() {
 

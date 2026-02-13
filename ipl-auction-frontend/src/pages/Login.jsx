@@ -11,26 +11,30 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Login clicked");
 
     try {
       const data = await loginUser(email, password);
+      console.log("Backend response:", data);
 
-      // Support multiple backend response formats
-      const userData = data.user ? data.user : data;
-      const token = data.token;
-
-      if (!token || !userData) {
-        alert("Invalid login response from server");
+      if (!data) {
+        alert("No response from server");
         return;
       }
 
-      // Save token & user
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(userData));
+      const token = data.token;
+      const userData = data.user ? data.user : data;
 
+      if (!token) {
+        alert("Token not received from backend");
+        return;
+      }
+
+      // Save using context (no double localStorage)
       login({ token, user: userData });
 
-      // ROLE BASED REDIRECT
+      console.log("User role:", userData.role);
+
       if (userData.role === "admin") {
         navigate("/admin");
       } else if (userData.role === "host") {
@@ -42,6 +46,7 @@ export default function Login() {
       }
 
     } catch (err) {
+      console.error("Login error:", err);
       alert(err.message || "Login failed");
     }
   };
@@ -57,6 +62,7 @@ export default function Login() {
         </h2>
 
         <input
+          type="email"
           placeholder="Email"
           className="border border-[#D4AF37] bg-[#0B0F1A] p-2 w-full mb-4"
           value={email}
