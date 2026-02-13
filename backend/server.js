@@ -44,6 +44,8 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 /* ================= SOCKET ================= */
 const server = http.createServer(app);
