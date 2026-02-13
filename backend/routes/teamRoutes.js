@@ -1,29 +1,41 @@
 const express = require("express");
 const Team = require("../models/Team");
-const User = require("../models/User");
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
 /* CREATE TEAM */
-router.post("/", protect, authorize("host", "superadmin"), async (req, res) => {
-  const { teamName, ownerId, budget } = req.body;
+router.post(
+  "/",
+  protect,
+  authorize("admin", "host", "superadmin"), // 👈 Added "admin"
+  async (req, res) => {
+    try {
+      const { name, budget } = req.body;
 
-  const team = await Team.create({
-    teamName,
-    owner: ownerId,
-    budget,
-    remainingPurse: budget
-  });
+      const team = await Team.create({
+        name,
+        budget,
+        remainingPurse: budget,
+        playerCount: 0
+      });
 
-  res.json(team);
-});
+      res.status(201).json(team);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
 
 /* GET ALL TEAMS */
 router.get("/", protect, async (req, res) => {
-  const teams = await Team.find().populate("owner");
-  res.json(teams);
+  try {
+    const teams = await Team.find();
+    res.json(teams);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;
