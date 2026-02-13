@@ -10,7 +10,7 @@ const router = express.Router();
 router.post(
   "/",
   protect,
-  authorize("host"),
+  authorize("host", "admin"), // ✅ allow admin also
   upload.single("image"),
   async (req, res) => {
     try {
@@ -25,6 +25,7 @@ router.post(
 
       res.json(player);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -34,42 +35,47 @@ router.post(
 router.post(
   "/bulk-form",
   protect,
-  authorize("host"),
-  upload.any(), // important
+  authorize("host", "admin"), // ✅ allow admin
+  upload.fields(
+    Array.from({ length: 12 }, (_, i) => ({
+      name: `players[${i}][image]`,
+      maxCount: 1
+    }))
+  ),
   async (req, res) => {
     try {
       const { category, nationality, capStatus } = req.body;
 
       const players = [];
 
-      // Multer stores files in req.files
-      const fileMap = {};
-      req.files.forEach((file) => {
-        fileMap[file.fieldname] = file.filename;
-      });
-
-      // Loop through 12 players
       for (let i = 0; i < 12; i++) {
         const name = req.body[`players[${i}][name]`];
         const basePrice = req.body[`players[${i}][basePrice]`];
-        const imageField = `players[${i}][image]`;
 
         if (name && basePrice) {
+          const imageFile =
+            req.files?.[`players[${i}][image]`]?.[0]?.filename || null;
+
           players.push({
             name,
             category,
             nationality,
             capStatus,
             basePrice: Number(basePrice),
-            image: fileMap[imageField] || null
+            image: imageFile
           });
         }
+      }
+
+      if (players.length === 0) {
+        return res.status(400).json({ message: "No valid players submitted" });
       }
 
       await Player.insertMany(players);
 
       res.json({ message: "12 Players Added Successfully" });
     } catch (err) {
+      console.error("Bulk error:", err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -85,7 +91,7 @@ router.get("/", async (req, res) => {
 router.put(
   "/:id",
   protect,
-  authorize("host"),
+  authorize("host", "admin"),
   upload.single("image"),
   async (req, res) => {
     try {
@@ -109,6 +115,7 @@ router.put(
 
       res.json(player);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -118,12 +125,13 @@ router.put(
 router.delete(
   "/:id",
   protect,
-  authorize("host"),
+  authorize("host", "admin"),
   async (req, res) => {
     try {
       await Player.findByIdAndDelete(req.params.id);
       res.json({ message: "Player deleted" });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }
