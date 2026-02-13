@@ -36,12 +36,13 @@ router.post(
 
       // Create team
       const team = await Team.create({
-        name,
-        budget,
+        teamName: name,              // ✅ match model
+        totalBudget: budget,         // ✅ match model
         remainingPurse: budget,
         playerCount: 0,
         owner: teamUser._id
       });
+
 
       res.status(201).json(team);
 

@@ -10,8 +10,8 @@ import {
 export default function AdminTeams() {
   const [teams, setTeams] = useState([]);
   const [form, setForm] = useState({
-    name: "",
-    budget: "",
+    teamName: "",
+    totalBudget: "",
     email: "",
     password: ""
   });
@@ -31,7 +31,7 @@ export default function AdminTeams() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!form.name || !form.budget) {
+    if (!form.teamName || !form.totalBudget) {
       alert("Team name and budget are required");
       return;
     }
@@ -44,8 +44,8 @@ export default function AdminTeams() {
       }
 
       setForm({
-        name: "",
-        budget: "",
+        teamName: "",
+        totalBudget: "",
         email: "",
         password: ""
       });
@@ -66,9 +66,9 @@ export default function AdminTeams() {
 
         <input
           placeholder="Team Name"
-          value={form.name}
+          value={form.teamName}
           onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
+            setForm({ ...form, teamName: e.target.value })
           }
           className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
@@ -76,9 +76,9 @@ export default function AdminTeams() {
         <input
           placeholder="Budget"
           type="number"
-          value={form.budget}
+          value={form.totalBudget}
           onChange={(e) =>
-            setForm({ ...form, budget: e.target.value })
+            setForm({ ...form, totalBudget: e.target.value })
           }
           className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
@@ -117,10 +117,12 @@ export default function AdminTeams() {
           className="bg-[#141A2E] p-4 rounded mb-3 flex justify-between items-center"
         >
           <div>
-            <p className="text-lg font-semibold">{t.name}</p>
+            <p className="text-lg font-semibold">{t.teamName}</p>
+
             <p className="text-[#D4AF37] text-sm">
-              Budget: ₹{t.budget} | Remaining: ₹{t.remainingPurse} | Players: {t.playerCount}
+              Budget: ₹{t.totalBudget} | Remaining: ₹{t.remainingPurse} | Players: {t.playerCount}
             </p>
+
             {t.owner?.email && (
               <p className="text-gray-400 text-xs">
                 Email: {t.owner.email}
@@ -133,8 +135,8 @@ export default function AdminTeams() {
               onClick={() => {
                 setEditId(t._id);
                 setForm({
-                  name: t.name,
-                  budget: t.budget,
+                  teamName: t.teamName,
+                  totalBudget: t.totalBudget,
                   email: t.owner?.email || "",
                   password: ""
                 });
