@@ -1,131 +1,104 @@
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: "Segoe UI", sans-serif;
 }
 
 /* LAYOUT */
 .layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3c72, #0f2027);
+  background: linear-gradient(to bottom right, #0f172a, #1e3a8a);
+  color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 250px;
+  background: #111827;
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #1f2937;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.sidebar button:hover {
+  background: #2563eb;
+}
+
+.logout-btn {
+  background: #dc2626 !important;
+}
+
+/* COLLAPSE FOR MOBILE */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  position: absolute;
+  height: 100%;
+  z-index: 1000;
 }
 
 /* MENU BUTTON */
 .global-toggle {
   position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 2000;
-  background: #111;
+  top: 15px;
+  left: 15px;
+  background: black;
   color: white;
   border: none;
   padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.global-toggle:hover {
-  background: #22c55e;
-}
-
-/* SIDEBAR */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: 250px;
-  background: rgba(0, 0, 0, 0.95);
-  padding: 80px 25px 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  color: white;
-  transition: 0.3s ease;
-  z-index: 1000;
-}
-
-.sidebar.hide {
-  left: -250px;
-}
-
-.sidebar h2 {
-  margin-bottom: 20px;
-  font-size: 20px;
-}
-
-.sidebar button {
-  padding: 12px;
-  border: none;
+  font-size: 18px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
   cursor: pointer;
-  transition: 0.3s;
-  text-align: left;
-}
-
-.sidebar button:hover {
-  background: #22c55e;
-}
-
-.logout-btn {
-  margin-top: auto;
-  background: #ef4444 !important;
-}
-
-.logout-btn:hover {
-  background: #dc2626 !important;
+  z-index: 1100;
 }
 
 /* MAIN CONTENT */
 .main-content {
   flex: 1;
-  margin-left: 250px;
-  padding: 60px 40px;
-  color: white;
-  transition: 0.3s ease;
-  display: flex;
-  flex-direction: column;
+  padding: 80px 20px 30px 20px;
+  width: 100%;
 }
 
-.main-content.expand {
-  margin-left: 0;
-}
-
-/* TITLE */
 .dashboard-title {
-  font-size: 32px;
+  text-align: center;
   margin-bottom: 30px;
-}
-
-/* CENTER CARDS */
-.cards-wrapper {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 30px;
 }
 
 /* GRID */
 .stats-grid {
-  width: 100%;
-  max-width: 1200px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
+  gap: 20px;
 }
 
+/* CARD */
 .stat-card {
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
   padding: 25px;
+  border-radius: 15px;
   text-align: center;
+  backdrop-filter: blur(10px);
   transition: 0.3s;
 }
 
@@ -133,95 +106,46 @@
   transform: translateY(-5px);
 }
 
-.stat-card h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
+.stat-card p {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .stat-card h2 {
+  margin-top: 10px;
   font-size: 22px;
 }
 
 .highlight {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: rgba(37, 99, 235, 0.4);
 }
 
+/* LOADING */
 .loading {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: linear-gradient(to bottom right, #0f172a, #1e3a8a);
   color: white;
 }
 
-/* ================= MOBILE RESPONSIVE ================= */
-
-/* Tablet */
-@media (max-width: 1024px) {
-  .main-content {
-    padding: 50px 25px;
-  }
-
-  .dashboard-title {
-    font-size: 26px;
-  }
-}
-
-/* Mobile */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
 
   .sidebar {
-    width: 220px;
-  }
-
-  .sidebar.hide {
-    left: -220px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
   }
 
   .main-content {
-    margin-left: 0;
-    padding: 80px 20px 30px;
-  }
-
-  .dashboard-title {
-    font-size: 22px;
-    text-align: center;
-  }
-
-  .stats-grid {
-    gap: 18px;
+    padding: 80px 15px 20px 15px;
   }
 
   .stat-card {
-    padding: 18px;
-  }
-
-  .stat-card h3 {
-    font-size: 14px;
-  }
-
-  .stat-card h2 {
-    font-size: 18px;
-  }
-
-  .global-toggle {
-    top: 15px;
-    left: 15px;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 480px) {
-
-  .dashboard-title {
-    font-size: 20px;
-  }
-
-  .stat-card {
-    padding: 15px;
-  }
-
-  .stat-card h2 {
-    font-size: 16px;
+    padding: 20px;
   }
 }

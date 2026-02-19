@@ -42,7 +42,7 @@ export default function TeamDashboard() {
       </button>
 
       {/* SIDEBAR */}
-      <div className={`sidebar ${collapsed ? "hide" : ""}`}>
+      <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         <h2>🏏 Team Panel</h2>
 
         <button onClick={() => navigate("/team/history")}>
@@ -59,35 +59,33 @@ export default function TeamDashboard() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className={`main-content ${collapsed ? "expand" : ""}`}>
+      <div className="main-content">
         <h1 className="dashboard-title">Team Dashboard</h1>
 
-        <div className="cards-wrapper">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <p>Team Name</p>
-              <h2>{team.teamName}</h2>
-            </div>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <p>Team Name</p>
+            <h2>{team.teamName}</h2>
+          </div>
 
-            <div className="stat-card">
-              <p>Total Budget</p>
-              <h2>₹ {formatPrice(team.totalBudget)}</h2>
-            </div>
+          <div className="stat-card">
+            <p>Total Budget</p>
+            <h2>₹ {formatPrice(team.totalBudget)}</h2>
+          </div>
 
-            <div className="stat-card">
-              <p>Total Spent</p>
-              <h2>₹ {formatPrice(team.totalSpent)}</h2>
-            </div>
+          <div className="stat-card">
+            <p>Total Spent</p>
+            <h2>₹ {formatPrice(team.totalSpent)}</h2>
+          </div>
 
-            <div className="stat-card highlight">
-              <p>Remaining Purse</p>
-              <h2>₹ {formatPrice(team.remainingPurse)}</h2>
-            </div>
+          <div className="stat-card highlight">
+            <p>Remaining Purse</p>
+            <h2>₹ {formatPrice(team.remainingPurse)}</h2>
+          </div>
 
-            <div className="stat-card">
-              <p>Players Bought</p>
-              <h2>{team.playersBought}</h2>
-            </div>
+          <div className="stat-card">
+            <p>Players Bought</p>
+            <h2>{team.playersBought}</h2>
           </div>
         </div>
       </div>
