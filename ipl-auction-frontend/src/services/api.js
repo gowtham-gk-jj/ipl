@@ -1,41 +1,51 @@
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL = "https://ipl-c9o8.onrender.com"; 
+// If your backend routes start with /api then use:
+// const BASE_URL = "https://ipl-c9o8.onrender.com/api";
 
 async function api(endpoint, method = "GET", body = null, isFormData = false) {
-  const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
-  const headers = {
-    ...(token && { Authorization: `Bearer ${token}` })
-  };
+    const headers = {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
 
-  // ❗ Only set JSON header if NOT FormData
-  if (!isFormData) {
-    headers["Content-Type"] = "application/json";
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method,
+      headers,
+      body: body
+        ? isFormData
+          ? body
+          : JSON.stringify(body)
+        : null,
+    });
+
+    const contentType = response.headers.get("content-type");
+    let data = null;
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        typeof data === "string"
+          ? data
+          : data?.message || `API Error (${response.status})`
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error("API Error:", error.message);
+    throw error;
   }
-
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body
-      ? isFormData
-        ? body // send FormData directly
-        : JSON.stringify(body)
-      : null
-  });
-
-  const contentType = res.headers.get("content-type");
-
-  let data = null;
-
-  if (contentType && contentType.includes("application/json")) {
-    data = await res.json();
-  }
-
-  if (!res.ok) {
-    throw new Error(data?.message || `API Error (${res.status})`);
-  }
-
-  return data;
 }
 
 export default api;

@@ -1,8 +1,9 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000", {
+const socket = io("https://ipl-c9o8.onrender.com", {
   transports: ["websocket", "polling"],
   autoConnect: true,
+  withCredentials: true,
 });
 
 socket.on("connect", () => {
