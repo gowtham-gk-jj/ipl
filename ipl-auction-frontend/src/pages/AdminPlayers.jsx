@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getPlayers, createBulkPlayers } from "../services/playerService";
 import "./AdminPlayers.css";
 
-
 export default function AdminPlayers() {
   const [players, setPlayers] = useState([]);
 
@@ -19,6 +18,23 @@ export default function AdminPlayers() {
       image: null
     }))
   );
+
+  // 🔥 Convert 2Cr / 50L to number
+  const convertPrice = (value) => {
+    if (!value) return 0;
+
+    value = value.toLowerCase().replace(/\s/g, "");
+
+    if (value.includes("cr")) {
+      return parseFloat(value.replace("cr", "")) * 10000000;
+    }
+
+    if (value.includes("l")) {
+      return parseFloat(value.replace("l", "")) * 100000;
+    }
+
+    return Number(value);
+  };
 
   const load = async () => {
     try {
@@ -63,8 +79,11 @@ export default function AdminPlayers() {
 
     bulkPlayers.forEach((player, index) => {
       if (player.name.trim() !== "" && player.basePrice !== "") {
+
+        const formattedPrice = convertPrice(player.basePrice);
+
         formData.append(`name_${index}`, player.name);
-        formData.append(`price_${index}`, player.basePrice);
+        formData.append(`price_${index}`, formattedPrice);
 
         if (player.image) {
           formData.append(`image_${index}`, player.image);
@@ -90,88 +109,87 @@ export default function AdminPlayers() {
   };
 
   return (
-  <div className="players-page">
+    <div className="players-page">
 
-    <h1 className="players-title">
-      🏏 Add 12 Players
-    </h1>
+      <h1 className="players-title">
+        🏏 Add 12 Players
+      </h1>
 
-    {/* Common Selection */}
-    <div className="players-common-card">
-      <select
-        value={common.category}
-        onChange={(e) =>
-          setCommon({ ...common, category: e.target.value })
-        }
-      >
-        <option value="">Select Category</option>
-        <option>Batsman</option>
-        <option>Bowler</option>
-        <option>All-Rounder</option>
-        <option>Wicket Keeper</option>
-      </select>
+      <div className="players-common-card">
+        <select
+          value={common.category}
+          onChange={(e) =>
+            setCommon({ ...common, category: e.target.value })
+          }
+        >
+          <option value="">Select Category</option>
+          <option>Batsman</option>
+          <option>Bowler</option>
+          <option>All-Rounder</option>
+          <option>Wicket Keeper</option>
+        </select>
 
-      <select
-        value={common.nationality}
-        onChange={(e) =>
-          setCommon({ ...common, nationality: e.target.value })
-        }
-      >
-        <option value="">Select Nationality</option>
-        <option value="Indian">Indian</option>
-        <option value="Foreign">Foreign</option>
-      </select>
+        <select
+          value={common.nationality}
+          onChange={(e) =>
+            setCommon({ ...common, nationality: e.target.value })
+          }
+        >
+          <option value="">Select Nationality</option>
+          <option value="Indian">Indian</option>
+          <option value="Foreign">Foreign</option>
+        </select>
 
-      <select
-        value={common.capStatus}
-        onChange={(e) =>
-          setCommon({ ...common, capStatus: e.target.value })
-        }
-      >
-        <option value="">Select Cap Status</option>
-        <option value="Capped">Capped</option>
-        <option value="Uncapped">Uncapped</option>
-      </select>
+        <select
+          value={common.capStatus}
+          onChange={(e) =>
+            setCommon({ ...common, capStatus: e.target.value })
+          }
+        >
+          <option value="">Select Cap Status</option>
+          <option value="Capped">Capped</option>
+          <option value="Uncapped">Uncapped</option>
+        </select>
+      </div>
+
+      <div className="players-form-card">
+        {bulkPlayers.map((player, index) => (
+          <div key={index} className="player-row">
+
+            <input
+              placeholder={`Player ${index + 1} Name`}
+              value={player.name}
+              onChange={(e) =>
+                handlePlayerChange(index, "name", e.target.value)
+              }
+            />
+
+            {/* 🔥 Changed to text instead of number */}
+            <input
+              type="text"
+              placeholder="Base Price (Ex: 2Cr or 50L)"
+              value={player.basePrice}
+              onChange={(e) =>
+                handlePlayerChange(index, "basePrice", e.target.value)
+              }
+            />
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                handlePlayerChange(index, "image", e.target.files[0])
+              }
+            />
+
+          </div>
+        ))}
+
+        <button onClick={handleBulkSubmit} className="players-submit-btn">
+          Add Players
+        </button>
+      </div>
+
     </div>
-
-    {/* Players Grid */}
-    <div className="players-form-card">
-      {bulkPlayers.map((player, index) => (
-        <div key={index} className="player-row">
-
-          <input
-            placeholder={`Player ${index + 1} Name`}
-            value={player.name}
-            onChange={(e) =>
-              handlePlayerChange(index, "name", e.target.value)
-            }
-          />
-
-          <input
-            type="number"
-            placeholder="Base Price"
-            value={player.basePrice}
-            onChange={(e) =>
-              handlePlayerChange(index, "basePrice", e.target.value)
-            }
-          />
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              handlePlayerChange(index, "image", e.target.files[0])
-            }
-          />
-
-        </div>
-      ))}
-
-      <button onClick={handleBulkSubmit} className="players-submit-btn">
-        Add Players
-      </button>
-    </div>
-
-  </div>
-);
+  );
 }
