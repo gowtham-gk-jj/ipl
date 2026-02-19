@@ -6,7 +6,7 @@ import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // ✅ use context
+  const { login } = useContext(AuthContext);
 
   const [form, setForm] = useState({
     email: "",
@@ -22,28 +22,22 @@ export default function Login() {
     try {
       const res = await api("/api/auth/login", "POST", form);
 
-      console.log("Login response:", res);
-
       if (!res || !res.token || !res.role) {
         alert("Invalid login response");
         return;
       }
 
-      // ✅ Use context login (IMPORTANT)
       login({
         token: res.token,
         user: { role: res.role }
       });
 
-      // Redirect by role
       if (res.role === "admin") {
         navigate("/admin");
       } else if (res.role === "team") {
         navigate("/team");
       } else if (res.role === "host") {
         navigate("/host/auction");
-      } else {
-        navigate("/login");
       }
 
     } catch (err) {
@@ -53,12 +47,19 @@ export default function Login() {
     }
   };
 
+  // 🔥 Viewer Button Click
+  const handleViewerOpen = () => {
+    navigate("/viewer");
+  };
+
   return (
     <div className="login-wrapper">
       <div className="login-card">
 
         <h1 className="login-title">🏏 IPL Auction</h1>
-        <p className="login-subtitle">Admin / Team / Host Login</p>
+        <p className="login-subtitle">
+          Admin / Team / Host Login
+        </p>
 
         <form onSubmit={handleLogin} className="login-form">
 
@@ -87,6 +88,24 @@ export default function Login() {
           </button>
 
         </form>
+
+        {/* 🔥 Viewer Option */}
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <button
+            onClick={handleViewerOpen}
+            style={{
+              background: "transparent",
+              border: "1px solid #f5c518",
+              color: "#f5c518",
+              padding: "10px 18px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "bold"
+            }}
+          >
+            👀 Open Viewer Page
+          </button>
+        </div>
 
       </div>
     </div>

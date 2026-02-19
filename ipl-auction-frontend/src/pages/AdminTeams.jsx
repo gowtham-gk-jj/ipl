@@ -18,6 +18,38 @@ export default function AdminTeams() {
   });
   const [editId, setEditId] = useState(null);
 
+  // 🔥 Convert 20Cr / 75L to number
+  const convertPrice = (value) => {
+    if (!value) return 0;
+
+    value = value.toLowerCase().replace(/\s/g, "");
+
+    if (value.includes("cr")) {
+      return parseFloat(value.replace("cr", "")) * 10000000;
+    }
+
+    if (value.includes("l")) {
+      return parseFloat(value.replace("l", "")) * 100000;
+    }
+
+    return Number(value);
+  };
+
+  // 🔥 Format number to Cr/L display
+  const formatPrice = (amount) => {
+    if (!amount) return "0";
+
+    if (amount >= 10000000) {
+      return (amount / 10000000).toFixed(2).replace(/\.00$/, "") + "Cr";
+    }
+
+    if (amount >= 100000) {
+      return (amount / 100000).toFixed(2).replace(/\.00$/, "") + "L";
+    }
+
+    return amount;
+  };
+
   const load = async () => {
     try {
       const data = await getTeams();
@@ -38,10 +70,18 @@ export default function AdminTeams() {
     }
 
     try {
+
+      const formattedBudget = convertPrice(form.totalBudget);
+
+      const payload = {
+        ...form,
+        totalBudget: formattedBudget
+      };
+
       if (editId) {
-        await updateTeam(editId, form);
+        await updateTeam(editId, payload);
       } else {
-        await createTeam(form);
+        await createTeam(payload);
       }
 
       setForm({
@@ -75,9 +115,10 @@ export default function AdminTeams() {
           }
         />
 
+        {/* 🔥 Changed to TEXT instead of number */}
         <input
-          placeholder="Budget"
-          type="number"
+          placeholder="Budget (Ex: 20Cr or 75L)"
+          type="text"
           value={form.totalBudget}
           onChange={(e) =>
             setForm({ ...form, totalBudget: e.target.value })
@@ -115,7 +156,9 @@ export default function AdminTeams() {
               <h3>{t.teamName}</h3>
 
               <p>
-                Budget: ₹{t.totalBudget} | Remaining: ₹{t.remainingPurse} | Players: {t.playerCount}
+                Budget: ₹{formatPrice(t.totalBudget)} |
+                Remaining: ₹{formatPrice(t.remainingPurse)} |
+                Players: {t.playerCount}
               </p>
 
               {t.owner?.email && (
@@ -130,7 +173,7 @@ export default function AdminTeams() {
                   setEditId(t._id);
                   setForm({
                     teamName: t.teamName,
-                    totalBudget: t.totalBudget,
+                    totalBudget: formatPrice(t.totalBudget),
                     email: t.owner?.email || "",
                     password: ""
                   });
