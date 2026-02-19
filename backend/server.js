@@ -11,6 +11,7 @@ const teamRoutes = require("./routes/teamRoutes");
 const playerRoutes = require("./routes/playerRoutes");
 const auctionRoutes = require("./routes/auctionRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const initSocket = require("./socket");
 
@@ -40,11 +41,12 @@ app.get("/", (req, res) => {
 
 /* ================= ROUTES ================= */
 app.use("/api/auth", authRoutes);
-app.use("/api/teams", teamRoutes);
+app.use("/api/teams", teamRoutes); 
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/reports", reportRoutes);
 
 
 

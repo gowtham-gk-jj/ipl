@@ -1,51 +1,82 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import "./AdminLayout.css";
+import { Menu } from "lucide-react";
 
-export default function AdminLayout({ children }) {
-  const [open, setOpen] = useState(false);
+export default function AdminLayout() {
+  const [hidden, setHidden] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const menu = [
     { name: "Dashboard", path: "/admin" },
     { name: "Players", path: "/admin/players" },
     { name: "Teams", path: "/admin/teams" },
-    { name: "Reports", path: "/admin/reports" }
+    { name: "Reports", path: "/admin/reports" },
   ];
 
+  // ✅ LOGOUT FUNCTION
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white flex">
+    <div className="admin-layout">
 
-      {/* Sidebar */}
-      <div className={`fixed md:static z-50 bg-[#141A2E] w-64 h-full p-6 transform 
-      ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform`}>
+      {/* SIDEBAR */}
+      <div className={`sidebar ${hidden ? "hidden" : ""}`}>
+        
+        <div className="sidebar-header">
+          🏏 IPL Admin
+        </div>
 
-        <h2 className="text-2xl font-bold text-[#D4AF37] mb-8">
-          IPL Admin
-        </h2>
+        <div className="menu">
+          {menu.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`menu-item ${
+                location.pathname === item.path ? "active" : ""
+              }`}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </div>
 
-        {menu.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`block mb-4 p-2 rounded 
-            ${location.pathname === item.path ? "bg-[#D4AF37] text-black" : "hover:text-[#D4AF37]"}`}
-          >
-            {item.name}
-          </Link>
-        ))}
+        {/* ✅ Logout Button */}
+        <div className="logout-btn" onClick={handleLogout}>
+          Logout
+        </div>
+
       </div>
 
-      {/* Content */}
-      <div className="flex-1 p-6 md:ml-0">
-        <button
-          className="md:hidden mb-4 bg-[#D4AF37] text-black px-4 py-2 rounded"
-          onClick={() => setOpen(!open)}
-        >
-          Menu
-        </button>
+      {/* MAIN CONTENT */}
+      <div className={`content ${hidden ? "full" : ""}`}>
+        
+        {/* TOPBAR */}
+        <div className="topbar">
+          <div className="topbar-left">
+            <Menu
+              size={22}
+              style={{ cursor: "pointer" }}
+              onClick={() => setHidden(!hidden)}
+            />
+            <div className="topbar-title">Admin Panel</div>
+          </div>
 
-        {children}
+          <div className="profile-circle">A</div>
+        </div>
+
+        {/* PAGE CONTENT */}
+        <div className="page-content">
+          <Outlet />
+        </div>
+
       </div>
+
     </div>
   );
 }

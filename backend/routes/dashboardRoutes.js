@@ -10,10 +10,11 @@ router.get("/admin", async (req, res) => {
 
     res.json({
       totalPlayers,
-      totalTeams,
-      totalRevenue: 0
+      totalTeams
     });
+
   } catch (err) {
+    console.error("FULL ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });

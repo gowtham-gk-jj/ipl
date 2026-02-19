@@ -13,14 +13,12 @@ const playerSchema = new mongoose.Schema(
       required: true
     },
 
-    // ✅ NEW FIELD
     nationality: {
       type: String,
       enum: ["Indian", "Foreign"],
       required: true
     },
 
-    // ✅ NEW FIELD
     capStatus: {
       type: String,
       enum: ["Capped", "Uncapped"],
@@ -58,7 +56,14 @@ const playerSchema = new mongoose.Schema(
 
     soldTo: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Team"
+      ref: "Team",
+      default: null
+    },
+
+    auctionedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     }
   },
   { timestamps: true }

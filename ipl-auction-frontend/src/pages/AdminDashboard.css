@@ -1,0 +1,83 @@
+/* ===== WRAPPER ===== */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== HEADING ===== */
+.dashboard-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #facc15;
+  margin-bottom: 40px;
+}
+
+/* ===== CARD GRID ===== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+/* ===== CARD ===== */
+.dashboard-card {
+  background: linear-gradient(145deg, #0f172a, #1e293b);
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #1f2937;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transition: 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(250, 204, 21, 0.15);
+}
+
+/* ===== CARD HEADER ===== */
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 16px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.card-icon {
+  font-size: 26px;
+  color: #facc15;
+}
+
+/* ===== CARD VALUE ===== */
+.card-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* ===== OVERVIEW SECTION ===== */
+.dashboard-overview {
+  background: #0f172a;
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid #1f2937;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.dashboard-overview h2 {
+  font-size: 22px;
+  color: #facc15;
+  margin-bottom: 15px;
+}
+
+.dashboard-overview p {
+  font-size: 16px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}

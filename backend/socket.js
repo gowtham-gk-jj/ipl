@@ -1,25 +1,30 @@
-const Player = require("./models/Player");
-const Team = require("./models/Team");
-const Bid = require("./models/Bid");
-
 const initSocket = (io) => {
+
   io.on("connection", (socket) => {
 
-    socket.on("placeBid", async ({ playerId, teamId, amount }) => {
+    console.log("User Connected:", socket.id);
 
-      const player = await Player.findById(playerId);
-      const team = await Team.findById(teamId);
+    /* ================= JOIN TEAM ROOM ================= */
+    socket.on("joinTeamRoom", (teamId) => {
+      socket.join(teamId);
+      console.log("Joined Team Room:", teamId);
+    });
 
-      if (!player || player.isSold) return;
-      if (team.remainingPurse < amount) return;
+    /* ================= START AUCTION ================= */
+    socket.on("startAuction", (player) => {
+      io.emit("auctionPlayer", player);
+    });
 
-      player.soldPrice = amount;
-      player.soldTo = teamId;
-      await player.save();
+    /* ================= BID UPDATE ================= */
+    socket.on("placeBid", ({ playerId, amount }) => {
+      io.emit("bidUpdate", {
+        playerId,
+        amount,
+      });
+    });
 
-      await Bid.create({ player: playerId, team: teamId, amount });
-
-      io.emit("bidUpdated", player);
+    socket.on("disconnect", () => {
+      console.log("User Disconnected:", socket.id);
     });
 
   });

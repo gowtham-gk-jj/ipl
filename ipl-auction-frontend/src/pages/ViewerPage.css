@@ -1,0 +1,93 @@
+.tv-container {
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(to right, #000428, #004e92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* MAIN LAYOUT */
+.tv-main {
+  width: 95%;
+  display: flex;
+  align-items: center;        /* 🔥 vertical center alignment */
+  justify-content: center;
+  gap: 120px;                 /* space between image & text */
+}
+
+/* IMAGE SECTION */
+.tv-image-box {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.tv-image {
+  width: 100%;
+  max-width: 900px;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 25px;
+  box-shadow: 0 0 80px rgba(0, 255, 255, 0.4);
+  margin-left: 500px;
+  margin-right: 250pxs;
+}
+
+/* TEXT SECTION */
+.tv-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;     /* 🔥 vertical alignment */
+  align-items: flex-start;     /* 🔥 clean left alignment */
+  text-align: left;
+  margin-left: 200px;
+}
+
+/* PLAYER NAME */
+.player-name {
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* META */
+.player-meta {
+  font-size: 20px;
+  opacity: 0.85;
+  margin-bottom: 30px;
+}
+
+/* PRICE */
+.player-price {
+  font-size: 60px;
+  font-weight: bold;
+  color: #00ff88;
+  margin-bottom: 30px;
+}
+
+/* STATUS */
+.status {
+  font-size: 26px;
+  padding: 15px 35px;
+  border-radius: 15px;
+}
+
+.live {
+  background: red;
+}
+
+.sold {
+  background: #28a745;
+}
+
+.sold span {
+  font-weight: bold;
+}
+
+.unsold {
+  background: #dc3545;
+}

@@ -3,61 +3,104 @@ import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 import Login from "./pages/Login";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPlayers from "./pages/AdminPlayers";
 import AdminTeams from "./pages/AdminTeams";
 import AdminReports from "./pages/AdminReports";
+import AdminLayout from "./components/layout/AdminLayout";
 
-export default function App() {
+import HostAuction from "./pages/HostAuction";
+
+import TeamDashboard from "./pages/TeamDashboard";
+import TeamPlayers from "./pages/TeamPlayers";
+import TeamAuction from "./pages/TeamAuction";
+import TeamBidHistory from "./pages/TeamBidHistory";
+
+import ViewerPage from "./pages/ViewerPage";
+
+function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
 
-          {/* Default route */}
-          <Route path="/" element={<Navigate to="/login" />} />
-
+          {/* Default */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
 
-          {/* ADMIN ROUTES */}
+          {/* ================= ADMIN ================= */}
           <Route
             path="/admin"
             element={
               <ProtectedRoute roles={["admin"]}>
-                <AdminDashboard />
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="players" element={<AdminPlayers />} />
+            <Route path="teams" element={<AdminTeams />} />
+            <Route path="reports" element={<AdminReports />} />
+          </Route>
+
+          {/* ================= HOST ================= */}
+          <Route
+            path="/host/auction"
+            element={
+              <ProtectedRoute roles={["host"]}>
+                <HostAuction />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ================= TEAM ================= */}
+          <Route
+            path="/team"
+            element={
+              <ProtectedRoute roles={["team"]}>
+                <TeamDashboard />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/admin/players"
+            path="/team/players"
             element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminPlayers />
+              <ProtectedRoute roles={["team"]}>
+                <TeamPlayers />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/admin/teams"
+            path="/team/auction"
             element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminTeams />
+              <ProtectedRoute roles={["team"]}>
+                <TeamAuction />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/admin/reports"
+            path="/team/history"
             element={
-              <ProtectedRoute roles={["admin"]}>
-                <AdminReports />
+              <ProtectedRoute roles={["team"]}>
+                <TeamBidHistory />
               </ProtectedRoute>
             }
           />
+
+          {/* ================= PUBLIC ================= */}
+          <Route path="/viewer" element={<ViewerPage />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
 
         </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
 }
+
+export default App;

@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../components/layout/AdminLayout";
 import api from "../services/api";
+import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
+
   const [stats, setStats] = useState({
     totalPlayers: 0,
     totalTeams: 0,
-    totalRevenue: 0
   });
 
   const loadStats = async () => {
     try {
-      const data = await api("/api/dashboard/admin");
-      setStats(data);
+      // ✅ Correct way to call your custom api function
+      const res = await api("/api/dashboard/admin");
+
+      console.log("Dashboard response:", res);
+
+      setStats({
+        totalPlayers: res.totalPlayers ?? 0,
+        totalTeams: res.totalTeams ?? 0,
+      });
+
     } catch (err) {
       console.error("Dashboard API error:", err.message);
-      // Keep default 0 values if API fails
     }
   };
 
@@ -24,25 +31,40 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <AdminLayout>
-      <h1 className="text-3xl text-[#D4AF37] mb-6">
-        Admin Dashboard
+    <div className="dashboard-container">
+
+      <h1 className="dashboard-title">
+        🏏 IPL Admin Dashboard
       </h1>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card title="Total Players" value={stats.totalPlayers} />
-        <Card title="Total Teams" value={stats.totalTeams} />
-        <Card title="Total Revenue" value={`₹ ${stats.totalRevenue}`} />
-      </div>
-    </AdminLayout>
-  );
-}
+      <div className="dashboard-grid">
 
-function Card({ title, value }) {
-  return (
-    <div className="bg-[#141A2E] p-6 rounded shadow-lg">
-      <h3>{title}</h3>
-      <p className="text-2xl text-[#D4AF37]">{value}</p>
+        <div className="dashboard-card">
+          <div className="card-top">
+            <span className="card-title">Total Players</span>
+            <span className="card-icon">👤</span>
+          </div>
+          <div className="card-value">{stats.totalPlayers}</div>
+        </div>
+
+        <div className="dashboard-card">
+          <div className="card-top">
+            <span className="card-title">Total Teams</span>
+            <span className="card-icon">🏏</span>
+          </div>
+          <div className="card-value">{stats.totalTeams}</div>
+        </div>
+
+      </div>
+
+      <div className="dashboard-overview">
+        <h2>Auction Overview</h2>
+        <p>
+          Monitor players and teams participating in the IPL Auction.
+          This dashboard provides system insights for the Super Admin.
+        </p>
+      </div>
+
     </div>
   );
 }

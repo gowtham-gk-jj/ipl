@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../components/layout/AdminLayout";
 import {
   getTeams,
   createTeam,
   updateTeam,
   deleteTeam
 } from "../services/teamService";
+import "./AdminTeams.css";
 
 export default function AdminTeams() {
+
   const [teams, setTeams] = useState([]);
   const [form, setForm] = useState({
     teamName: "",
@@ -52,17 +53,19 @@ export default function AdminTeams() {
 
       setEditId(null);
       load();
+
     } catch (err) {
       alert(err.message);
     }
   };
 
   return (
-    <AdminLayout>
-      <h1 className="text-3xl text-[#D4AF37] mb-6">Teams</h1>
+    <div className="teams-page">
 
-      {/* FORM */}
-      <div className="bg-[#141A2E] p-6 rounded mb-6 grid md:grid-cols-4 gap-4">
+      <h1 className="teams-title">🏏 Teams Management</h1>
+
+      {/* FORM CARD */}
+      <div className="teams-form-card">
 
         <input
           placeholder="Team Name"
@@ -70,7 +73,6 @@ export default function AdminTeams() {
           onChange={(e) =>
             setForm({ ...form, teamName: e.target.value })
           }
-          className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
 
         <input
@@ -80,7 +82,6 @@ export default function AdminTeams() {
           onChange={(e) =>
             setForm({ ...form, totalBudget: e.target.value })
           }
-          className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
 
         <input
@@ -89,7 +90,6 @@ export default function AdminTeams() {
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
           }
-          className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
 
         <input
@@ -99,62 +99,58 @@ export default function AdminTeams() {
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
           }
-          className="bg-[#0B0F1A] border border-[#D4AF37] p-2 text-white"
         />
 
-        <button
-          onClick={handleSubmit}
-          className="bg-[#D4AF37] text-black p-2 rounded col-span-4 hover:opacity-90"
-        >
+        <button onClick={handleSubmit} className="teams-submit-btn">
           {editId ? "Update Team" : "Add Team"}
         </button>
       </div>
 
       {/* TEAM LIST */}
-      {teams.map((t) => (
-        <div
-          key={t._id}
-          className="bg-[#141A2E] p-4 rounded mb-3 flex justify-between items-center"
-        >
-          <div>
-            <p className="text-lg font-semibold">{t.teamName}</p>
+      <div className="teams-list">
+        {teams.map((t) => (
+          <div key={t._id} className="team-card">
 
-            <p className="text-[#D4AF37] text-sm">
-              Budget: ₹{t.totalBudget} | Remaining: ₹{t.remainingPurse} | Players: {t.playerCount}
-            </p>
+            <div className="team-info">
+              <h3>{t.teamName}</h3>
 
-            {t.owner?.email && (
-              <p className="text-gray-400 text-xs">
-                Email: {t.owner.email}
+              <p>
+                Budget: ₹{t.totalBudget} | Remaining: ₹{t.remainingPurse} | Players: {t.playerCount}
               </p>
-            )}
-          </div>
 
-          <div className="space-x-3">
-            <button
-              onClick={() => {
-                setEditId(t._id);
-                setForm({
-                  teamName: t.teamName,
-                  totalBudget: t.totalBudget,
-                  email: t.owner?.email || "",
-                  password: ""
-                });
-              }}
-              className="bg-blue-500 px-3 py-1 rounded"
-            >
-              Edit
-            </button>
+              {t.owner?.email && (
+                <span>Email: {t.owner.email}</span>
+              )}
+            </div>
 
-            <button
-              onClick={() => deleteTeam(t._id).then(load)}
-              className="bg-red-500 px-3 py-1 rounded"
-            >
-              Delete
-            </button>
+            <div className="team-actions">
+              <button
+                className="edit-btn"
+                onClick={() => {
+                  setEditId(t._id);
+                  setForm({
+                    teamName: t.teamName,
+                    totalBudget: t.totalBudget,
+                    email: t.owner?.email || "",
+                    password: ""
+                  });
+                }}
+              >
+                Edit
+              </button>
+
+              <button
+                className="delete-btn"
+                onClick={() => deleteTeam(t._id).then(load)}
+              >
+                Delete
+              </button>
+            </div>
+
           </div>
-        </div>
-      ))}
-    </AdminLayout>
+        ))}
+      </div>
+
+    </div>
   );
 }

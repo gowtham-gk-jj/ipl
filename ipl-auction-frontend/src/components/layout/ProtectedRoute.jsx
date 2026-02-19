@@ -5,13 +5,18 @@ import { AuthContext } from "../../context/AuthContext";
 export default function ProtectedRoute({ children, roles }) {
   const { user } = useContext(AuthContext);
 
+  // Backup from localStorage
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+
+  const currentUser = user || storedUser;
+
   // Not logged in
-  if (!user) {
+  if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  // Role not allowed
-  if (roles && !roles.includes(user.role)) {
+  // Role check
+  if (roles && !roles.includes(currentUser.role)) {
     return <Navigate to="/login" replace />;
   }
 

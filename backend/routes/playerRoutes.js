@@ -10,7 +10,7 @@ const router = express.Router();
 router.post(
   "/",
   protect,
-  authorize("host", "admin"), // ✅ allow admin also
+  authorize("host", "admin"),
   upload.single("image"),
   async (req, res) => {
     try {
@@ -19,20 +19,22 @@ router.post(
         category: req.body.category,
         nationality: req.body.nationality,
         capStatus: req.body.capStatus,
-        basePrice: req.body.basePrice,
-        image: req.file ? req.file.filename : null
+        basePrice: Number(req.body.basePrice),
+        image: req.file ? req.file.filename : null,
+        isSold: false,
+        soldPrice: 0,
+        soldTo: null
       });
 
       res.json(player);
     } catch (err) {
-      console.error(err);
+      console.error("Add Player Error:", err);
       res.status(500).json({ message: err.message });
     }
   }
 );
 
-/* ================= BULK 12 PLAYER ADD ================= */
-/* ================= BULK 12 PLAYER ADD ================= */
+/* ================= BULK ADD ================= */
 router.post(
   "/bulk-form",
   protect,
@@ -43,8 +45,8 @@ router.post(
       const { category, nationality, capStatus } = req.body;
 
       const players = [];
-
       const fileMap = {};
+
       if (req.files) {
         req.files.forEach((file) => {
           fileMap[file.fieldname] = file.filename;
@@ -62,7 +64,10 @@ router.post(
             nationality,
             capStatus,
             basePrice: Number(basePrice),
-            image: fileMap[`image_${i}`] || null
+            image: fileMap[`image_${i}`] || null,
+            isSold: false,
+            soldPrice: 0,
+            soldTo: null
           });
         }
       }
@@ -78,16 +83,25 @@ router.post(
       });
 
     } catch (err) {
-      console.error(err);
+      console.error("Bulk Insert Error:", err);
       res.status(500).json({ message: err.message });
     }
   }
 );
 
-/* ================= GET PLAYERS ================= */
+/* ================= GET PLAYERS (FIXED) ================= */
 router.get("/", async (req, res) => {
-  const players = await Player.find().populate("soldTo");
-  res.json(players);
+  try {
+    const players = await Player.find()
+      .populate("soldTo", "teamName remainingPurse")
+      .populate("auctionedBy", "name");
+
+    res.json(players);
+
+  } catch (err) {
+    console.error("Get Players Error:", err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 /* ================= UPDATE PLAYER ================= */
@@ -103,7 +117,7 @@ router.put(
         category: req.body.category,
         nationality: req.body.nationality,
         capStatus: req.body.capStatus,
-        basePrice: req.body.basePrice
+        basePrice: Number(req.body.basePrice)
       };
 
       if (req.file) {
@@ -117,8 +131,9 @@ router.put(
       );
 
       res.json(player);
+
     } catch (err) {
-      console.error(err);
+      console.error("Update Player Error:", err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -134,7 +149,7 @@ router.delete(
       await Player.findByIdAndDelete(req.params.id);
       res.json({ message: "Player deleted" });
     } catch (err) {
-      console.error(err);
+      console.error("Delete Player Error:", err);
       res.status(500).json({ message: err.message });
     }
   }
