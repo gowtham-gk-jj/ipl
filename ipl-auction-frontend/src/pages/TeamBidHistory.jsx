@@ -9,7 +9,9 @@ const formatPrice = (amount) =>
 
 export default function TeamHistory() {
   const [players, setPlayers] = useState([]);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(
+    window.innerWidth < 768
+  );
   const navigate = useNavigate();
 
   /* ================= FETCH TEAM DATA ================= */
@@ -32,10 +34,9 @@ export default function TeamHistory() {
       socket.emit("join", user._id);
     }
 
-    // 🔥 Listen for live sold player
     socket.on("playerSold", (data) => {
       setPlayers((prev) => {
-        const exists = prev.find(p => p._id === data.player._id);
+        const exists = prev.find((p) => p._id === data.player._id);
         if (exists) return prev;
         return [...prev, data.player];
       });
@@ -62,7 +63,7 @@ export default function TeamHistory() {
   return (
     <div className="layout">
 
-      {/* ================= MENU BUTTON ================= */}
+      {/* MENU BUTTON */}
       <button
         className="global-toggle"
         onClick={() => setCollapsed(!collapsed)}
@@ -70,8 +71,8 @@ export default function TeamHistory() {
         ☰
       </button>
 
-      {/* ================= SIDEBAR ================= */}
-      <div className={`sidebar ${collapsed ? "hide" : ""}`}>
+      {/* SIDEBAR */}
+      <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         <h2>🏏 Team Panel</h2>
 
         <button onClick={() => navigate("/team")}>
@@ -91,11 +92,10 @@ export default function TeamHistory() {
         </button>
       </div>
 
-      {/* ================= MAIN CONTENT ================= */}
-      <div className={`main-content ${collapsed ? "expand" : ""}`}>
+      {/* MAIN CONTENT */}
+      <div className="main-content">
         <div className="history-container">
 
-          {/* HEADER */}
           <div className="history-header">
             <h1>📜 Bought Players</h1>
             <div className="summary-box">
@@ -104,12 +104,9 @@ export default function TeamHistory() {
             </div>
           </div>
 
-          {/* NO DATA */}
           {players.length === 0 ? (
             <p className="no-data">No players bought yet.</p>
           ) : (
-
-            /* PLAYER GRID */
             <div className="history-grid">
               {players.map((player) => (
                 <div className="history-card" key={player._id}>
@@ -143,7 +140,6 @@ export default function TeamHistory() {
                 </div>
               ))}
             </div>
-
           )}
         </div>
       </div>

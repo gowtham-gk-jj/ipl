@@ -9,7 +9,9 @@ const formatPrice = (amount) =>
 export default function TeamPlayers() {
   const [players, setPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(
+    window.innerWidth < 768
+  );
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
@@ -66,7 +68,7 @@ export default function TeamPlayers() {
       </button>
 
       {/* SIDEBAR */}
-      <div className={`sidebar ${collapsed ? "hide" : ""}`}>
+      <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         <h2>🏏 Team Panel</h2>
 
         <button onClick={() => navigate("/team")}>
@@ -87,7 +89,7 @@ export default function TeamPlayers() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className={`players-container ${collapsed ? "expand" : ""}`}>
+      <div className="players-container">
 
         <h1 className="players-title">👥 Player List</h1>
 
