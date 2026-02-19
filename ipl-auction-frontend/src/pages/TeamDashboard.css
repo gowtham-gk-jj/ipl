@@ -5,6 +5,7 @@
   font-family: "Poppins", sans-serif;
 }
 
+/* LAYOUT */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -37,7 +38,7 @@
   top: 0;
   height: 100vh;
   width: 250px;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   padding: 80px 25px 25px;
   display: flex;
   flex-direction: column;
@@ -53,12 +54,13 @@
 
 .sidebar h2 {
   margin-bottom: 20px;
+  font-size: 20px;
 }
 
 .sidebar button {
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   color: white;
   cursor: pointer;
@@ -106,6 +108,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-bottom: 30px;
 }
 
 /* GRID */
@@ -118,7 +121,7 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 25px;
@@ -128,6 +131,15 @@
 
 .stat-card:hover {
   transform: translateY(-5px);
+}
+
+.stat-card h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.stat-card h2 {
+  font-size: 22px;
 }
 
 .highlight {
@@ -140,4 +152,76 @@
   justify-content: center;
   align-items: center;
   color: white;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 50px 25px;
+  }
+
+  .dashboard-title {
+    font-size: 26px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+  .sidebar {
+    width: 220px;
+  }
+
+  .sidebar.hide {
+    left: -220px;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 80px 20px 30px;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .stats-grid {
+    gap: 18px;
+  }
+
+  .stat-card {
+    padding: 18px;
+  }
+
+  .stat-card h3 {
+    font-size: 14px;
+  }
+
+  .stat-card h2 {
+    font-size: 18px;
+  }
+
+  .global-toggle {
+    top: 15px;
+    left: 15px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-card h2 {
+    font-size: 16px;
+  }
 }
