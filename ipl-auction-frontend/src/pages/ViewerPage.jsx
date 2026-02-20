@@ -23,35 +23,24 @@ export default function ViewerPage() {
 
   useEffect(() => {
 
-    /* ================= AUCTION START ================= */
-    socket.on("auctionPlayer", (data) => {
-      // data = { player, highestBid, highestBidder }
-      setPlayer(data.player);              // ✅ FIX
-      setCurrentBid(data.highestBid);
-      setStatus("LIVE");
-      setSoldTeam("");
-    });
+    socket.on("auctionState", (data) => {
 
-    /* ================= BID UPDATE ================= */
-    socket.on("bidUpdate", ({ highestBid }) => {
-      setCurrentBid(highestBid);
-    });
-
-    /* ================= AUCTION ENDED ================= */
-    socket.on("auctionEnded", (data) => {
-      if (data.highestBidder) {
-        setStatus("SOLD");
-        setCurrentBid(data.highestBid);
-        setSoldTeam(data.highestBidder);
-      } else {
-        setStatus("UNSOLD");
+      // If no active auction
+      if (!data.player) {
+        setPlayer(null);
+        setStatus("WAITING");
+        setCurrentBid(0);
+        return;
       }
+
+      setPlayer(data.player);
+      setCurrentBid(data.highestBid);
+      setStatus(data.status);
+      setSoldTeam(data.highestBidder || "");
     });
 
     return () => {
-      socket.off("auctionPlayer");
-      socket.off("bidUpdate");
-      socket.off("auctionEnded");
+      socket.off("auctionState");
     };
 
   }, []);
@@ -70,11 +59,7 @@ export default function ViewerPage() {
           {/* PLAYER IMAGE */}
           <div className="tv-image-box">
             <img
-              src={
-                player.image
-                  ? player.image      // ✅ Cloudinary full URL
-                  : "/default-player.png"
-              }
+              src={player.image || "/default-player.png"}
               alt={player.name}
               className="tv-image"
             />
