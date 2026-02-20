@@ -7,17 +7,18 @@ let currentAuction = {
 const initSocket = (io) => {
 
   io.on("connection", (socket) => {
-
-    console.log("User Connected:", socket.id);
+    console.log("✅ User Connected:", socket.id);
 
     /* ================= JOIN TEAM ROOM ================= */
     socket.on("joinTeamRoom", (teamId) => {
+      if (!teamId) return;
       socket.join(teamId);
       console.log("Joined Team Room:", teamId);
     });
 
     /* ================= START AUCTION ================= */
     socket.on("startAuction", (player) => {
+      if (!player) return;
 
       currentAuction = {
         player,
@@ -26,15 +27,18 @@ const initSocket = (io) => {
       };
 
       io.emit("auctionPlayer", currentAuction);
-      console.log("Auction Started:", player.name);
+      console.log("🔥 Auction Started:", player.name);
     });
 
     /* ================= PLACE BID ================= */
     socket.on("placeBid", ({ teamId, amount }) => {
 
-      if (!currentAuction.player) return;
+      if (!currentAuction.player) {
+        socket.emit("bidError", "No active auction");
+        return;
+      }
 
-      if (amount <= currentAuction.highestBid) {
+      if (!amount || amount <= currentAuction.highestBid) {
         socket.emit("bidError", "Bid must be higher than current bid");
         return;
       }
@@ -48,17 +52,20 @@ const initSocket = (io) => {
         highestBidder: currentAuction.highestBidder,
       });
 
-      console.log("New Bid:", amount, "by", teamId);
+      console.log("💰 New Bid:", amount, "by", teamId);
     });
 
     /* ================= END AUCTION ================= */
     socket.on("endAuction", () => {
 
-      if (!currentAuction.player) return;
+      if (!currentAuction.player) {
+        socket.emit("auctionError", "No active auction to end");
+        return;
+      }
 
       io.emit("auctionEnded", currentAuction);
 
-      console.log("Auction Ended for:", currentAuction.player.name);
+      console.log("🏁 Auction Ended for:", currentAuction.player.name);
 
       currentAuction = {
         player: null,
@@ -69,10 +76,11 @@ const initSocket = (io) => {
 
     /* ================= DISCONNECT ================= */
     socket.on("disconnect", () => {
-      console.log("User Disconnected:", socket.id);
+      console.log("❌ User Disconnected:", socket.id);
     });
 
   });
+
 };
 
 module.exports = initSocket;
