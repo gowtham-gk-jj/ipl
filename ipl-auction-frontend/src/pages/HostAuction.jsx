@@ -19,10 +19,10 @@ const formatPrice = (amount) => {
 
 /* ================= IPL DYNAMIC INCREMENT SYSTEM ================= */
 const getIncrement = (amount) => {
-  if (amount < 10000000) return 1000000;      // Below 1 Cr → +10L
-  if (amount < 50000000) return 2500000;     // 1–5 Cr → +25L
-  if (amount < 100000000) return 5000000;    // 5–10 Cr → +50L
-  return 10000000;                           // Above 10 Cr → +1 Cr
+  if (amount < 10000000) return 1000000;
+  if (amount < 50000000) return 2500000;
+  if (amount < 100000000) return 5000000;
+  return 10000000;
 };
 
 export default function HostAuction() {
@@ -99,16 +99,14 @@ export default function HostAuction() {
     if (!currentPlayer) return;
 
     setHighestBid(currentPlayer.basePrice);
-
     socket.emit("startAuction", currentPlayer);
   };
 
-  /* ================= INCREASE BID (IPL STYLE) ================= */
+  /* ================= INCREASE BID ================= */
   const increaseBid = () => {
     if (!currentPlayer) return;
 
     setHighestBid((prev) => {
-
       const increment = getIncrement(prev);
       const newBid = prev + increment;
 
@@ -249,10 +247,11 @@ export default function HostAuction() {
             </div>
           ) : (
             <>
+              {/* 🔥 UPDATED IMAGE SECTION FOR CLOUDINARY */}
               <div className="player-image">
                 {currentPlayer.image && (
                   <img
-                    src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${currentPlayer.image}`}
+                    src={currentPlayer.image}
                     alt={currentPlayer.name}
                   />
                 )}

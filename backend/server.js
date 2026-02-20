@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const path = require("path");
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
@@ -24,10 +23,10 @@ const app = express();
 /* ================= ALLOWED ORIGINS ================= */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://ipl-auction-live.vercel.app"
+  "https://ipl-auction-live.vercel.app",
 ];
 
-/* ================= CORS FIX ================= */
+/* ================= CORS CONFIG ================= */
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -52,22 +51,22 @@ app.get("/", (req, res) => {
   });
 });
 
-/* ================= ROUTES ================= */
+/* ================= API ROUTES ================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/auction", auctionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/reports", reportRoutes);
 
-/* ================= SOCKET FIX ================= */
+/* ================= SOCKET.IO ================= */
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST"],
   },
   transports: ["polling", "websocket"],
 });
@@ -78,5 +77,5 @@ initSocket(io);
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

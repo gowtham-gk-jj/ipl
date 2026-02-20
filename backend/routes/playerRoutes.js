@@ -2,7 +2,7 @@ const express = require("express");
 const Player = require("../models/Player");
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
-const upload = require("../middleware/upload");
+const upload = require("../middleware/cloudUpload"); // 🔥 CHANGED
 
 const router = express.Router();
 
@@ -20,13 +20,14 @@ router.post(
         nationality: req.body.nationality,
         capStatus: req.body.capStatus,
         basePrice: Number(req.body.basePrice),
-        image: req.file ? req.file.filename : null,
+        image: req.file ? req.file.path : null, // 🔥 Cloudinary URL
         isSold: false,
         soldPrice: 0,
         soldTo: null
       });
 
       res.json(player);
+
     } catch (err) {
       console.error("Add Player Error:", err);
       res.status(500).json({ message: err.message });
@@ -49,7 +50,7 @@ router.post(
 
       if (req.files) {
         req.files.forEach((file) => {
-          fileMap[file.fieldname] = file.filename;
+          fileMap[file.fieldname] = file.path; // 🔥 Cloudinary URL
         });
       }
 
@@ -89,7 +90,7 @@ router.post(
   }
 );
 
-/* ================= GET PLAYERS (FIXED) ================= */
+/* ================= GET PLAYERS ================= */
 router.get("/", async (req, res) => {
   try {
     const players = await Player.find()
@@ -121,7 +122,7 @@ router.put(
       };
 
       if (req.file) {
-        updateData.image = req.file.filename;
+        updateData.image = req.file.path; // 🔥 Cloudinary URL
       }
 
       const player = await Player.findByIdAndUpdate(
