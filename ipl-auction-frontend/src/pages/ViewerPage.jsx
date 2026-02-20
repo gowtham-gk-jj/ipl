@@ -2,12 +2,6 @@ import { useEffect, useState } from "react";
 import socket from "../services/socket";
 import "./ViewerPage.css";
 
-/* ================= BASE URL FIX ================= */
-const BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5000"
-    : "https://ipl-c9o8.onrender.com";
-
 /* ================= PRICE FORMAT FUNCTION ================= */
 const formatPrice = (amount) => {
   if (!amount) return "0";
@@ -29,17 +23,21 @@ export default function ViewerPage() {
 
   useEffect(() => {
 
+    /* ================= AUCTION START ================= */
     socket.on("auctionPlayer", (data) => {
-      setPlayer(data);
-      setCurrentBid(data.highestBid || data.basePrice || 0);
+      // data = { player, highestBid, highestBidder }
+      setPlayer(data.player);              // ✅ FIX
+      setCurrentBid(data.highestBid);
       setStatus("LIVE");
       setSoldTeam("");
     });
 
-    socket.on("bidUpdate", (data) => {
-      setCurrentBid(data.highestBid);
+    /* ================= BID UPDATE ================= */
+    socket.on("bidUpdate", ({ highestBid }) => {
+      setCurrentBid(highestBid);
     });
 
+    /* ================= AUCTION ENDED ================= */
     socket.on("auctionEnded", (data) => {
       if (data.highestBidder) {
         setStatus("SOLD");
@@ -73,11 +71,11 @@ export default function ViewerPage() {
           <div className="tv-image-box">
             <img
               src={
-                player?.player?.image
-                  ? `${BASE_URL}/uploads/${player.player.image}`
+                player.image
+                  ? player.image      // ✅ Cloudinary full URL
                   : "/default-player.png"
               }
-              alt={player?.player?.name}
+              alt={player.name}
               className="tv-image"
             />
           </div>
@@ -86,13 +84,11 @@ export default function ViewerPage() {
           <div className="tv-info">
 
             <h1 className="player-name">
-              {player?.player?.name}
+              {player.name}
             </h1>
 
             <div className="player-meta">
-              {player?.player?.category} |{" "}
-              {player?.player?.nationality} |{" "}
-              {player?.player?.capStatus}
+              {player.category} | {player.nationality} | {player.capStatus}
             </div>
 
             <div className="player-price">
