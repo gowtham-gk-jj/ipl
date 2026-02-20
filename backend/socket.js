@@ -9,6 +9,11 @@ const initSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("✅ User Connected:", socket.id);
 
+    // 🔥 FIX: Send current auction state to newly connected user
+    if (currentAuction.player) {
+      socket.emit("auctionPlayer", currentAuction);
+    }
+
     /* ================= JOIN TEAM ROOM ================= */
     socket.on("joinTeamRoom", (teamId) => {
       if (!teamId) return;
