@@ -17,6 +17,14 @@ const formatPrice = (amount) => {
   return amount;
 };
 
+/* ================= IPL DYNAMIC INCREMENT SYSTEM ================= */
+const getIncrement = (amount) => {
+  if (amount < 10000000) return 1000000;      // Below 1 Cr → +10L
+  if (amount < 50000000) return 2500000;     // 1–5 Cr → +25L
+  if (amount < 100000000) return 5000000;    // 5–10 Cr → +50L
+  return 10000000;                           // Above 10 Cr → +1 Cr
+};
+
 export default function HostAuction() {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
@@ -92,18 +100,18 @@ export default function HostAuction() {
 
     setHighestBid(currentPlayer.basePrice);
 
-    // 🔥 Emit to Viewer
     socket.emit("startAuction", currentPlayer);
   };
 
-  /* ================= INCREASE BID ================= */
+  /* ================= INCREASE BID (IPL STYLE) ================= */
   const increaseBid = () => {
     if (!currentPlayer) return;
 
     setHighestBid((prev) => {
-      const newBid = prev + 500000;
 
-      // 🔥 Emit bid update
+      const increment = getIncrement(prev);
+      const newBid = prev + increment;
+
       socket.emit("placeBid", {
         playerId: currentPlayer._id,
         amount: newBid,
@@ -136,7 +144,6 @@ export default function HostAuction() {
         }
       );
 
-      // 🔥 Emit SOLD to Viewer
       socket.emit("playerSold", {
         amount: highestBid,
         teamName: selectedTeamObj?.teamName,
@@ -161,7 +168,6 @@ export default function HostAuction() {
         "POST"
       );
 
-      // 🔥 Emit UNSOLD to Viewer
       socket.emit("playerUnsold");
 
       setHighestBid(0);
