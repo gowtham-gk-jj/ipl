@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import socket from "../services/socket";
 import "./ViewerPage.css";
 
+/* ================= BASE URL FIX ================= */
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : "https://ipl-c9o8.onrender.com";
+
 /* ================= PRICE FORMAT FUNCTION ================= */
 const formatPrice = (amount) => {
   if (!amount) return "0";
@@ -25,30 +31,29 @@ export default function ViewerPage() {
 
     socket.on("auctionPlayer", (data) => {
       setPlayer(data);
-      setCurrentBid(data.basePrice);
+      setCurrentBid(data.highestBid || data.basePrice || 0);
       setStatus("LIVE");
       setSoldTeam("");
     });
 
-    socket.on("bidUpdate", ({ amount }) => {
-      setCurrentBid(amount);
+    socket.on("bidUpdate", (data) => {
+      setCurrentBid(data.highestBid);
     });
 
-    socket.on("playerSold", ({ amount, teamName }) => {
-      setStatus("SOLD");
-      setSoldTeam(teamName);
-      setCurrentBid(amount);
-    });
-
-    socket.on("playerUnsold", () => {
-      setStatus("UNSOLD");
+    socket.on("auctionEnded", (data) => {
+      if (data.highestBidder) {
+        setStatus("SOLD");
+        setCurrentBid(data.highestBid);
+        setSoldTeam(data.highestBidder);
+      } else {
+        setStatus("UNSOLD");
+      }
     });
 
     return () => {
       socket.off("auctionPlayer");
       socket.off("bidUpdate");
-      socket.off("playerSold");
-      socket.off("playerUnsold");
+      socket.off("auctionEnded");
     };
 
   }, []);
@@ -67,8 +72,12 @@ export default function ViewerPage() {
           {/* PLAYER IMAGE */}
           <div className="tv-image-box">
             <img
-              src={`http://localhost:5000/uploads/${player.image}`}
-              alt={player.name}
+              src={
+                player?.player?.image
+                  ? `${BASE_URL}/uploads/${player.player.image}`
+                  : "/default-player.png"
+              }
+              alt={player?.player?.name}
               className="tv-image"
             />
           </div>
@@ -76,10 +85,14 @@ export default function ViewerPage() {
           {/* PLAYER DETAILS */}
           <div className="tv-info">
 
-            <h1 className="player-name">{player.name}</h1>
+            <h1 className="player-name">
+              {player?.player?.name}
+            </h1>
 
             <div className="player-meta">
-              {player.category} | {player.nationality} | {player.capStatus}
+              {player?.player?.category} |{" "}
+              {player?.player?.nationality} |{" "}
+              {player?.player?.capStatus}
             </div>
 
             <div className="player-price">
