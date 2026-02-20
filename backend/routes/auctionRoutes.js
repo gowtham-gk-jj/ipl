@@ -16,7 +16,6 @@ router.post(
     try {
       const { amount, teamId } = req.body;
 
-      // ✅ Validation
       if (!amount || !teamId) {
         return res.status(400).json({
           message: "Please select team and amount",
@@ -30,7 +29,6 @@ router.post(
         });
       }
 
-      // ✅ Prevent double sell
       if (player.isSold) {
         return res.status(400).json({
           message: "Player already sold",
@@ -44,7 +42,6 @@ router.post(
         });
       }
 
-      // ✅ Check purse
       if (team.remainingPurse < amount) {
         return res.status(400).json({
           message: "Insufficient purse",
@@ -74,12 +71,15 @@ router.post(
         soldPrice: amount,
       });
 
-      /* ================= 🔥 LIVE SOCKET UPDATE ================= */
+      /* ================= SOCKET UPDATE ================= */
       const io = req.app.get("io");
 
       if (io) {
-        io.to(team.owner._id.toString()).emit("playerSold", {
-          player,
+        io.emit("auctionState", {
+          player: player,
+          highestBid: amount,
+          highestBidder: team.teamName,
+          status: "SOLD",
         });
       }
 
@@ -96,7 +96,6 @@ router.post(
   }
 );
 
-
 /* ================= MARK UNSOLD ================= */
 router.post(
   "/unsold/:id",
@@ -112,11 +111,24 @@ router.post(
         });
       }
 
-      player.isSold = false;
+      /* 🔥 IMPORTANT FIX */
+      player.isSold = true;     // ✅ Mark removed from auction
       player.soldPrice = 0;
       player.soldTo = null;
 
       await player.save();
+
+      /* ================= SOCKET UPDATE ================= */
+      const io = req.app.get("io");
+
+      if (io) {
+        io.emit("auctionState", {
+          player: player,
+          highestBid: 0,
+          highestBidder: null,
+          status: "UNSOLD",
+        });
+      }
 
       res.status(200).json({
         message: "Player marked as Unsold",
@@ -130,6 +142,7 @@ router.post(
     }
   }
 );
+
 /* ================= GET NEXT PLAYER ================= */
 router.get(
   "/next-player",

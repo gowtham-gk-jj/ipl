@@ -17,7 +17,6 @@ const formatPrice = (amount) => {
   return amount;
 };
 
-/* ================= IPL DYNAMIC INCREMENT SYSTEM ================= */
 const getIncrement = (amount) => {
   if (amount < 10000000) return 1000000;
   if (amount < 50000000) return 2500000;
@@ -59,7 +58,6 @@ export default function HostAuction() {
       setPlayers(pendingPlayers);
       setTeams(teamData);
       setCurrentIndex(0);
-
     } catch (err) {
       console.error("Load Error:", err);
     } finally {
@@ -88,13 +86,11 @@ export default function HostAuction() {
     setCurrentIndex(0);
   }, [filters, allPlayers]);
 
-  /* ================= LOGOUT ================= */
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  /* ================= START AUCTION ================= */
   const startAuction = () => {
     if (!currentPlayer) return;
 
@@ -102,7 +98,6 @@ export default function HostAuction() {
     socket.emit("startAuction", currentPlayer);
   };
 
-  /* ================= INCREASE BID ================= */
   const increaseBid = () => {
     if (!currentPlayer) return;
 
@@ -110,11 +105,7 @@ export default function HostAuction() {
       const increment = getIncrement(prev);
       const newBid = prev + increment;
 
-      socket.emit("placeBid", {
-        playerId: currentPlayer._id,
-        amount: newBid,
-      });
-
+      socket.emit("placeBid", { amount: newBid });
       return newBid;
     });
   };
@@ -129,10 +120,6 @@ export default function HostAuction() {
     }
 
     try {
-      const selectedTeamObj = teams.find(
-        (team) => team._id === selectedTeam
-      );
-
       await api(
         `/api/auction/sold/${currentPlayer._id}`,
         "POST",
@@ -141,11 +128,6 @@ export default function HostAuction() {
           teamId: selectedTeam,
         }
       );
-
-      socket.emit("playerSold", {
-        amount: highestBid,
-        teamName: selectedTeamObj?.teamName,
-      });
 
       setHighestBid(0);
       setSelectedTeam("");
@@ -166,8 +148,6 @@ export default function HostAuction() {
         "POST"
       );
 
-      socket.emit("playerUnsold");
-
       setHighestBid(0);
       await loadData();
 
@@ -176,7 +156,6 @@ export default function HostAuction() {
     }
   };
 
-  /* ================= NEXT PLAYER ================= */
   const moveNext = () => {
     setHighestBid(0);
     setSelectedTeam("");
@@ -247,7 +226,6 @@ export default function HostAuction() {
             </div>
           ) : (
             <>
-              {/* 🔥 UPDATED IMAGE SECTION FOR CLOUDINARY */}
               <div className="player-image">
                 {currentPlayer.image && (
                   <img
