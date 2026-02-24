@@ -16,15 +16,28 @@ const formatPrice = (amount) => {
   return amount;
 };
 
+/* ================= TEAM LOGO MAP ================= */
+
+const teamLogos = {
+  CSK: "/logos/csk.png",
+  MI: "/logos/mi.png",
+  RCB: "/logos/rcb.png",
+  KKR: "/logos/kkr.png",
+  SRH: "/logos/srh.png",
+  DC: "/logos/dc.png",
+  RR: "/logos/rr.png",
+  PBKS: "/logos/pbks.png",
+  GT: "/logos/gt.png",
+  LSG: "/logos/lsg.png",
+};
+
 export default function ViewerPage() {
   const [auction, setAuction] = useState(null);
 
   /* ================= SOCKET CONNECTION ================= */
 
   useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
+    if (!socket.connected) socket.connect();
 
     const handleAuctionState = (data) => {
       console.log("📡 LIVE UPDATE:", data);
@@ -55,9 +68,26 @@ export default function ViewerPage() {
 
   return (
     <div className="tv-container">
+
       <div className="tv-main">
 
-        {/* PLAYER IMAGE */}
+        {/* ================= LEFT SIDE - TEAM LIVE PURSE ================= */}
+        <div className="tv-teams-box">
+          <h2 className="teams-title">💰 Team Live Purse</h2>
+
+          {auction.teams?.map((team) => (
+            <div key={team._id} className="team-row">
+              <span className="team-name">
+                {team.teamName || team.name}
+              </span>
+              <span className="team-purse">
+                ₹ {formatPrice(team.remainingPurse)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* ================= PLAYER IMAGE ================= */}
         <div className="tv-image-box">
           <img
             src={auction.player.image || "/default-player.png"}
@@ -66,7 +96,7 @@ export default function ViewerPage() {
           />
         </div>
 
-        {/* PLAYER INFO */}
+        {/* ================= PLAYER INFO ================= */}
         <div className="tv-info">
 
           <h1 className="player-name">
@@ -90,8 +120,20 @@ export default function ViewerPage() {
           )}
 
           {auction.status === "SOLD" && (
-            <div className="status sold">
-              🏆 SOLD TO <span>{auction.highestBidder}</span>
+            <div className="sold-section">
+
+              {/* TEAM LOGO WITH ANIMATION */}
+              {teamLogos[auction.highestBidder] && (
+                <img
+                  src={teamLogos[auction.highestBidder]}
+                  alt="Team Logo"
+                  className="team-logo-animate"
+                />
+              )}
+
+              <div className="status sold">
+                🏆 SOLD TO <span>{auction.highestBidder}</span>
+              </div>
             </div>
           )}
 

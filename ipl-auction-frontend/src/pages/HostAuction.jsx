@@ -131,16 +131,19 @@ export default function HostAuction() {
         }
       );
 
-      // 🔥 GET TEAM NAME
       const teamName =
         teams.find((t) => t._id === selectedTeam)?.teamName || "";
 
-      // 🔥 EMIT SOCKET EVENT
       socket.emit("playerSold", { teamName });
 
       setHighestBid(0);
       setSelectedTeam("");
+
       await loadData();
+
+      // 🔥 Refresh teams to update purse live
+      const updatedTeams = await api("/api/teams");
+      setTeams(updatedTeams);
 
     } catch (err) {
       alert(err.message);
@@ -157,11 +160,13 @@ export default function HostAuction() {
         "POST"
       );
 
-      // 🔥 EMIT SOCKET EVENT
       socket.emit("playerUnsold");
 
       setHighestBid(0);
       await loadData();
+
+      const updatedTeams = await api("/api/teams");
+      setTeams(updatedTeams);
 
     } catch (err) {
       console.error(err);
@@ -304,6 +309,21 @@ export default function HostAuction() {
             </>
           )}
         </div>
+
+        {/* ================= LIVE TEAM PURSE PANEL ================= */}
+        <div className="live-purse-panel">
+          <h3>💰 Live Team Purse</h3>
+
+          {teams.map((team) => (
+            <div key={team._id} className="purse-row">
+              <span>{team.teamName}</span>
+              <span className="purse-amount">
+                ₹ {formatPrice(team.remainingPurse)}
+              </span>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );

@@ -17,19 +17,63 @@
 
 .tv-main {
   width: 100%;
-  max-width: 1400px;
-  display: flex;
+  max-width: 1600px;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr; /* LEFT | MIDDLE | RIGHT */
   align-items: center;
-  justify-content: space-between;
-  gap: 80px;
+  gap: 60px;
 }
 
-/* ================= IMAGE SECTION ================= */
+/* ================= LEFT SIDE - TEAM PURSE ================= */
+
+.tv-teams-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 25px;
+  border-radius: 25px;
+  height: 75vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+}
+
+.teams-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  margin-bottom: 20px;
+}
+
+.team-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 18px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  transition: 0.3s;
+}
+
+.team-row:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.team-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.team-purse {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+/* ================= IMAGE SECTION (MIDDLE) ================= */
 
 .tv-image-box {
-  flex: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .tv-image {
@@ -41,10 +85,9 @@
   box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
 }
 
-/* ================= TEXT SECTION ================= */
+/* ================= TEXT SECTION (RIGHT) ================= */
 
 .tv-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -119,9 +162,9 @@
 
 /* ================= RESPONSIVE ================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .tv-main {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     text-align: center;
   }
 
@@ -130,11 +173,35 @@
     text-align: center;
   }
 
+  .tv-teams-box {
+    height: auto;
+  }
+
   .player-name {
     font-size: 40px;
   }
 
   .player-price {
     font-size: 50px;
+  }
+}
+
+.team-logo-animate {
+  width: 150px;
+  margin: 20px 0;
+  animation: zoomIn 0.8s ease forwards;
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }

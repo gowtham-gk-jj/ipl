@@ -1,19 +1,24 @@
+const Team = require("../models/Team"); // 🔥 IMPORT TEAM MODEL
+
 let currentAuction = {
   player: null,
   highestBid: 0,
   highestBidder: null,
-  status: "IDLE", // IDLE | LIVE | SOLD | UNSOLD
+  status: "IDLE",
+  teams: [], // 🔥 ADD TEAMS
 };
 
 const initSocket = (io) => {
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     console.log("✅ User Connected:", socket.id);
 
-    /* ===== SEND CURRENT STATE TO NEW USER ===== */
+    // 🔥 Always refresh teams when user connects
+    currentAuction.teams = await Team.find();
+
     socket.emit("auctionState", currentAuction);
 
     /* ===== START AUCTION ===== */
-    socket.on("startAuction", (player) => {
+    socket.on("startAuction", async (player) => {
       if (!player) return;
 
       currentAuction = {
@@ -21,6 +26,7 @@ const initSocket = (io) => {
         highestBid: player.basePrice || 0,
         highestBidder: null,
         status: "LIVE",
+        teams: await Team.find(), // 🔥 INCLUDE TEAMS
       };
 
       io.emit("auctionState", currentAuction);
@@ -46,40 +52,45 @@ const initSocket = (io) => {
     });
 
     /* ===== SOLD ===== */
-    socket.on("playerSold", ({ teamName }) => {
+    socket.on("playerSold", async ({ teamName }) => {
       if (!currentAuction.player) return;
 
       currentAuction.status = "SOLD";
       currentAuction.highestBidder = teamName || "Unknown";
+
+      // 🔥 REFRESH TEAMS AFTER SOLD
+      currentAuction.teams = await Team.find();
 
       io.emit("auctionState", currentAuction);
       console.log("🏆 Player Sold to:", teamName);
     });
 
     /* ===== UNSOLD ===== */
-    socket.on("playerUnsold", () => {
+    socket.on("playerUnsold", async () => {
       if (!currentAuction.player) return;
 
       currentAuction.status = "UNSOLD";
+
+      currentAuction.teams = await Team.find(); // 🔥 REFRESH
 
       io.emit("auctionState", currentAuction);
       console.log("❌ Player Unsold");
     });
 
     /* ===== END AUCTION ===== */
-    socket.on("endAuction", () => {
+    socket.on("endAuction", async () => {
       currentAuction = {
         player: null,
         highestBid: 0,
         highestBidder: null,
         status: "IDLE",
+        teams: await Team.find(), // 🔥 INCLUDE TEAMS
       };
 
       io.emit("auctionState", currentAuction);
       console.log("🏁 Auction Reset");
     });
 
-    /* ===== DISCONNECT ===== */
     socket.on("disconnect", (reason) => {
       console.log("❌ User Disconnected:", socket.id, reason);
     });
