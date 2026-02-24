@@ -9,10 +9,10 @@ const initSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("✅ User Connected:", socket.id);
 
-    /* ================= SEND CURRENT STATE TO NEW USER ================= */
+    /* ===== SEND CURRENT STATE TO NEW USER ===== */
     socket.emit("auctionState", currentAuction);
 
-    /* ================= START AUCTION ================= */
+    /* ===== START AUCTION ===== */
     socket.on("startAuction", (player) => {
       if (!player) return;
 
@@ -27,7 +27,7 @@ const initSocket = (io) => {
       console.log("🔥 Auction Started:", player.name);
     });
 
-    /* ================= PLACE BID ================= */
+    /* ===== PLACE BID ===== */
     socket.on("placeBid", ({ amount }) => {
       if (!currentAuction.player) {
         socket.emit("bidError", "No active auction");
@@ -42,34 +42,31 @@ const initSocket = (io) => {
       currentAuction.highestBid = amount;
 
       io.emit("auctionState", currentAuction);
-
       console.log("💰 New Bid:", amount);
     });
 
-    /* ================= SOLD ================= */
+    /* ===== SOLD ===== */
     socket.on("playerSold", ({ teamName }) => {
       if (!currentAuction.player) return;
 
       currentAuction.status = "SOLD";
-      currentAuction.highestBidder = teamName;
+      currentAuction.highestBidder = teamName || "Unknown";
 
       io.emit("auctionState", currentAuction);
-
       console.log("🏆 Player Sold to:", teamName);
     });
 
-    /* ================= UNSOLD ================= */
+    /* ===== UNSOLD ===== */
     socket.on("playerUnsold", () => {
       if (!currentAuction.player) return;
 
       currentAuction.status = "UNSOLD";
 
       io.emit("auctionState", currentAuction);
-
       console.log("❌ Player Unsold");
     });
 
-    /* ================= END AUCTION ================= */
+    /* ===== END AUCTION ===== */
     socket.on("endAuction", () => {
       currentAuction = {
         player: null,
@@ -82,9 +79,9 @@ const initSocket = (io) => {
       console.log("🏁 Auction Reset");
     });
 
-    /* ================= DISCONNECT ================= */
-    socket.on("disconnect", () => {
-      console.log("❌ User Disconnected:", socket.id);
+    /* ===== DISCONNECT ===== */
+    socket.on("disconnect", (reason) => {
+      console.log("❌ User Disconnected:", socket.id, reason);
     });
   });
 };

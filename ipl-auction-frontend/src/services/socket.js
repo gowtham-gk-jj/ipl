@@ -3,14 +3,12 @@ import { io } from "socket.io-client";
 /* ================= SOCKET INSTANCE ================= */
 
 const socket = io("https://ipl-c9o8.onrender.com", {
-  autoConnect: false,              // Prevent auto connection (important)
-  transports: ["websocket", "polling"], // Works better on Render
-  withCredentials: true,
+  autoConnect: false,                // manual connect
+  transports: ["polling", "websocket"], // ✅ polling FIRST (important)
   reconnection: true,
-  reconnectionAttempts: 10,
+  reconnectionAttempts: 15,
   reconnectionDelay: 2000,
-  timeout: 30000,
-  forceNew: true,
+  timeout: 45000,                    // give Render time to wake
 });
 
 /* ================= CONNECTION EVENTS ================= */
@@ -24,9 +22,7 @@ socket.on("disconnect", (reason) => {
 });
 
 socket.on("connect_error", (err) => {
-  console.error("❌ Socket Connection Error:", err.message);
+  console.log("❌ Socket Error:", err.message);
 });
-
-/* ================= EXPORT ================= */
 
 export default socket;
