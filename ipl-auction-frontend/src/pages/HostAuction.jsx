@@ -5,6 +5,7 @@ import api from "../services/api";
 import "./HostAuction.css";
 import socket from "../services/socket";
 
+/* ================= PRICE FORMAT ================= */
 const formatPrice = (amount) => {
   if (!amount) return "0";
 
@@ -17,6 +18,7 @@ const formatPrice = (amount) => {
   return amount;
 };
 
+/* ================= BID INCREMENT ================= */
 const getIncrement = (amount) => {
   if (amount < 10000000) return 1000000;
   if (amount < 50000000) return 2500000;
@@ -36,13 +38,14 @@ export default function HostAuction() {
   const [highestBid, setHighestBid] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const [filters, setFilters] = useState({
-    category: "",
-    nationality: "",
-    capStatus: "",
-  });
-
   const currentPlayer = players[currentIndex];
+
+  /* ================= SOCKET CONNECT ================= */
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  }, []);
 
   /* ================= LOAD DATA ================= */
   const loadData = async () => {
@@ -58,6 +61,7 @@ export default function HostAuction() {
       setPlayers(pendingPlayers);
       setTeams(teamData);
       setCurrentIndex(0);
+
     } catch (err) {
       console.error("Load Error:", err);
     } finally {
@@ -69,35 +73,21 @@ export default function HostAuction() {
     loadData();
   }, []);
 
-  /* ================= FILTER ================= */
-  useEffect(() => {
-    let filtered = allPlayers;
-
-    if (filters.category)
-      filtered = filtered.filter((p) => p.category === filters.category);
-
-    if (filters.nationality)
-      filtered = filtered.filter((p) => p.nationality === filters.nationality);
-
-    if (filters.capStatus)
-      filtered = filtered.filter((p) => p.capStatus === filters.capStatus);
-
-    setPlayers(filtered);
-    setCurrentIndex(0);
-  }, [filters, allPlayers]);
-
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  /* ================= START AUCTION ================= */
   const startAuction = () => {
     if (!currentPlayer) return;
 
     setHighestBid(currentPlayer.basePrice);
+
     socket.emit("startAuction", currentPlayer);
   };
 
+  /* ================= INCREASE BID ================= */
   const increaseBid = () => {
     if (!currentPlayer) return;
 
@@ -106,6 +96,7 @@ export default function HostAuction() {
       const newBid = prev + increment;
 
       socket.emit("placeBid", { amount: newBid });
+
       return newBid;
     });
   };
@@ -129,6 +120,14 @@ export default function HostAuction() {
         }
       );
 
+      const teamName =
+        teams.find((t) => t._id === selectedTeam)?.teamName || "";
+
+      // ✅ Emit for LIVE Viewer update
+      socket.emit("playerSold", {
+        teamName: teamName,
+      });
+
       setHighestBid(0);
       setSelectedTeam("");
       await loadData();
@@ -147,6 +146,9 @@ export default function HostAuction() {
         `/api/auction/unsold/${currentPlayer._id}`,
         "POST"
       );
+
+      // ✅ Emit for LIVE Viewer update
+      socket.emit("playerUnsold");
 
       setHighestBid(0);
       await loadData();
@@ -180,45 +182,6 @@ export default function HostAuction() {
 
       <div className="auction-body">
 
-        <div className="filter-panel">
-          <h3>Filter Players</h3>
-
-          <select
-            value={filters.category}
-            onChange={(e) =>
-              setFilters({ ...filters, category: e.target.value })
-            }
-          >
-            <option value="">All Types</option>
-            <option>Batsman</option>
-            <option>Bowler</option>
-            <option>All-Rounder</option>
-            <option>Wicket Keeper</option>
-          </select>
-
-          <select
-            value={filters.nationality}
-            onChange={(e) =>
-              setFilters({ ...filters, nationality: e.target.value })
-            }
-          >
-            <option value="">Indian / Foreign</option>
-            <option value="Indian">Indian</option>
-            <option value="Foreign">Foreign</option>
-          </select>
-
-          <select
-            value={filters.capStatus}
-            onChange={(e) =>
-              setFilters({ ...filters, capStatus: e.target.value })
-            }
-          >
-            <option value="">Capped / Uncapped</option>
-            <option value="Capped">Capped</option>
-            <option value="Uncapped">Uncapped</option>
-          </select>
-        </div>
-
         <div className="player-section">
           {!currentPlayer ? (
             <div className="auction-finished">
@@ -237,6 +200,7 @@ export default function HostAuction() {
 
               <div className="player-details">
                 <h1>{currentPlayer.name}</h1>
+
                 <p><strong>Type:</strong> {currentPlayer.category}</p>
                 <p><strong>Nationality:</strong> {currentPlayer.nationality}</p>
                 <p><strong>Cap Status:</strong> {currentPlayer.capStatus}</p>

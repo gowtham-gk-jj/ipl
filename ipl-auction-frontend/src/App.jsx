@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import socket from "./services/socket"; 
 
 import Login from "./pages/Login";
 
@@ -18,6 +19,13 @@ import TeamAuction from "./pages/TeamAuction";
 import TeamBidHistory from "./pages/TeamBidHistory";
 
 import ViewerPage from "./pages/ViewerPage";
+
+ /* ================= GLOBAL SOCKET CONNECT ================= */
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  }, []);
 
 function App() {
   return (

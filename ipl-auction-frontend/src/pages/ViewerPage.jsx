@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import socket from "../services/socket";
 import "./ViewerPage.css";
 
-/* ================= PRICE FORMAT FUNCTION ================= */
 const formatPrice = (amount) => {
   if (!amount) return "0";
 
@@ -16,91 +15,70 @@ const formatPrice = (amount) => {
 };
 
 export default function ViewerPage() {
-  const [player, setPlayer] = useState(null);
-  const [status, setStatus] = useState("WAITING");
-  const [soldTeam, setSoldTeam] = useState("");
-  const [currentBid, setCurrentBid] = useState(0);
+  const [auction, setAuction] = useState(null);
 
   useEffect(() => {
+    // ✅ Ensure connection
+    if (!socket.connected) {
+      socket.connect();
+    }
 
-    socket.on("auctionState", (data) => {
-
-      // If no active auction
-      if (!data.player) {
-        setPlayer(null);
-        setStatus("WAITING");
-        setCurrentBid(0);
-        return;
-      }
-
-      setPlayer(data.player);
-      setCurrentBid(data.highestBid);
-      setStatus(data.status);
-      setSoldTeam(data.highestBidder || "");
-    });
-
-    return () => {
-      socket.off("auctionState");
+    const handleAuctionState = (data) => {
+      console.log("📡 LIVE UPDATE:", data);
+      setAuction(data);
     };
 
+    socket.on("auctionState", handleAuctionState);
+
+    return () => {
+      socket.off("auctionState", handleAuctionState);
+    };
   }, []);
 
+  if (!auction || !auction.player) {
+    return (
+      <div className="waiting-screen">
+        <h1>🏏 IPL LIVE AUCTION</h1>
+        <p>Waiting for Auction...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="tv-container">
+    <div className="tv-main">
+      <div className="tv-image-box">
+        <img
+          src={auction.player.image || "/default-player.png"}
+          alt={auction.player.name}
+          className="tv-image"
+        />
+      </div>
 
-      {!player ? (
-        <div className="waiting-screen">
-          <h1>🏏 IPL LIVE AUCTION</h1>
-          <p>Waiting for Auction...</p>
+      <div className="tv-info">
+        <h1 className="player-name">{auction.player.name}</h1>
+
+        <div className="player-meta">
+          {auction.player.category} | {auction.player.nationality} | {auction.player.capStatus}
         </div>
-      ) : (
-        <div className="tv-main">
 
-          {/* PLAYER IMAGE */}
-          <div className="tv-image-box">
-            <img
-              src={player.image || "/default-player.png"}
-              alt={player.name}
-              className="tv-image"
-            />
-          </div>
-
-          {/* PLAYER DETAILS */}
-          <div className="tv-info">
-
-            <h1 className="player-name">
-              {player.name}
-            </h1>
-
-            <div className="player-meta">
-              {player.category} | {player.nationality} | {player.capStatus}
-            </div>
-
-            <div className="player-price">
-              ₹ {formatPrice(currentBid)}
-            </div>
-
-            {status === "LIVE" && (
-              <div className="status live">🔴 LIVE</div>
-            )}
-
-            {status === "SOLD" && (
-              <div className="status sold">
-                SOLD TO <span>{soldTeam}</span>
-              </div>
-            )}
-
-            {status === "UNSOLD" && (
-              <div className="status unsold">
-                UNSOLD
-              </div>
-            )}
-
-          </div>
-
+        <div className="player-price">
+          ₹ {formatPrice(auction.highestBid)}
         </div>
-      )}
 
+        {auction.status === "LIVE" && (
+          <div className="status live">🔴 LIVE BIDDING</div>
+        )}
+
+        {auction.status === "SOLD" && (
+          <div className="status sold">
+            🏆 SOLD TO <span>{auction.highestBidder}</span>
+          </div>
+        )}
+
+        {auction.status === "UNSOLD" && (
+          <div className="status unsold">❌ UNSOLD</div>
+        )}
+      </div>
     </div>
   );
 }
