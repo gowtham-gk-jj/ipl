@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
@@ -14,9 +14,32 @@ export default function Login() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [serverReady, setServerReady] = useState(false);
 
+  /* ================= WAKE BACKEND ON PAGE LOAD ================= */
+  useEffect(() => {
+    const wakeServer = async () => {
+      try {
+        await fetch("https://ipl-c9o8.onrender.com");
+        console.log("🚀 Backend Ready");
+        setServerReady(true);
+      } catch (err) {
+        console.log("Wake failed");
+      }
+    };
+
+    wakeServer();
+  }, []);
+
+  /* ================= LOGIN FUNCTION ================= */
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!serverReady) {
+      alert("Server is starting... Please wait a few seconds.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -47,7 +70,6 @@ export default function Login() {
     }
   };
 
-  // 🔥 Viewer Button Click
   const handleViewerOpen = () => {
     navigate("/viewer");
   };
@@ -89,7 +111,6 @@ export default function Login() {
 
         </form>
 
-        {/* 🔥 Viewer Option */}
         <div style={{ marginTop: "20px", textAlign: "center" }}>
           <button
             onClick={handleViewerOpen}
