@@ -1,4 +1,4 @@
-const Team = require("../models/Team"); // 🔥 IMPORT TEAM MODEL
+const Team = require("./models/Team"); // 🔥 IMPORT TEAM MODEL
 
 let currentAuction = {
   player: null,
