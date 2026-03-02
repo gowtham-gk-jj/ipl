@@ -5,7 +5,7 @@ export default function AdminReports() {
 
   const exportCSV = async () => {
     try {
-      const response = await api.get("/api/reports/export", {
+      const response = await api.get("/api/report/export", {
         responseType: "blob",
       });
 
