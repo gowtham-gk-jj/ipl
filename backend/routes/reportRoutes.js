@@ -1,27 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const Player = require("../models/Player");
-const Team = require("../models/Team");
 
-router.get("/export", async (req, res) => {
+// Team-wise bought players report
+router.get("/export-team-players", async (req, res) => {
   try {
+    const players = await Player.find({
+      soldTo: { $ne: null }   // Only sold players
+    }).populate("soldTo", "teamName");
 
-    const players = await Player.find().populate("soldTo", "teamName");
-    const teams = await Team.find();
-
-    let csv = "Player Name,Category,Base Price,Sold Price,Team\n";
+    let csv = "Team Name,Player Name,Category,Bought Price\n";
 
     players.forEach(player => {
-      csv += `${player.name},${player.category},${player.basePrice},${player.soldPrice || 0},${player.soldTo?.teamName || "Unsold"}\n`;
+      csv += `"${player.soldTo?.teamName}","${player.name}","${player.category}",${player.soldPrice}\n`;
     });
 
-    res.header("Content-Type", "text/csv");
-    res.attachment("auction_report.csv");
-    return res.send(csv);
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=team_bought_players_report.csv"
+    );
 
-  } catch (err) {
-    console.error("Export Error:", err);
-    res.status(500).json({ message: "Report export failed" });
+    res.status(200).send(csv);
+
+  } catch (error) {
+    console.error("Export Error:", error);
+    res.status(500).json({ message: "Export failed" });
   }
 });
 
