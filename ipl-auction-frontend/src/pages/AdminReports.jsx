@@ -4,24 +4,38 @@ import "./AdminReports.css";
 export default function AdminReports() {
 
   const exportCSV = async () => {
-    try {
-      const response = await api.get("/api/reports/export", {
-        responseType: "blob",
-      });
+  try {
+    const response = await fetch(
+      "https://ipl-c9o8.onrender.com/api/reports/export",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "auction_report.csv");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-    } catch (err) {
-      console.error("Export error:", err);
-      alert("Failed to export report");
+    if (!response.ok) {
+      throw new Error("Failed to download report");
     }
-  };
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "auction_report.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("Export error:", error);
+    alert("Failed to export report");
+  }
+};
 
   return (
     <div className="reports-page">
